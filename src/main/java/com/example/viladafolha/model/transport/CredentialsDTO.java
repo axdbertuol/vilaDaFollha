@@ -1,4 +1,4 @@
-package com.example.viladafolha.model;
+package com.example.viladafolha.model.transport;
 
 import lombok.Data;
 

@@ -1,9 +1,8 @@
 package com.example.viladafolha.util;
 
-import com.example.viladafolha.controllers.service.UserService;
-import com.example.viladafolha.model.User;
+import com.example.viladafolha.model.Inhabitant;
+import com.example.viladafolha.model.transport.JwtDTO;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -36,20 +35,15 @@ public class JWTUtil {
     }
 
 
-    public String generateToken(User user) {
 
-        Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("id", user.getId() + "");
-        claims.put("role", user.getRole());
-        return Jwts
-                .builder()
-                .setClaims(claims)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS512, secret)
-                .compact();
-    }
-
+	public JwtDTO generateToken(String email) {
+		Date tokenExpiration = new Date(System.currentTimeMillis() + expiration);
+		String token = Jwts.builder()
+		.setSubject(email)
+		.setExpiration(tokenExpiration)
+		.signWith(SignatureAlgorithm.HS512, secret).compact();
+		return new JwtDTO("Bearer", token, tokenExpiration.getTime());
+	}
 
     public String resolveToken(HttpServletRequest request) {
         var bearerToken = request.getHeader("Authorization");

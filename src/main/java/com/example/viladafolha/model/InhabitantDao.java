@@ -7,21 +7,26 @@ import java.util.*;
 
 @Repository
 public class InhabitantDao implements Dao<Inhabitant> {
-    private Map<UUID, Inhabitant> inhabitants = new HashMap();
+    private Map<Long, Inhabitant> inhabitants = new HashMap();
 
     @Autowired
     public InhabitantDao() {
-        Inhabitant in = new Inhabitant("Alex", "Bert", 30, 500.0);
-        inhabitants.put(in.getId(), in);
-        in = new Inhabitant("Jao", "Silva", 21, 1500.0);
-        inhabitants.put(in.getId(), in);
-        in = new Inhabitant("Jao", "Xis", 24, 3000.0);
-        inhabitants.put(in.getId(), in);
+//        Inhabitant in = new Inhabitant("Alex", "Bert", 30, 500.0);
+//        inhabitants.put(in.getId(), in);
+//        in = new Inhabitant("Jao", "Silva", 21, 1500.0);
+//        inhabitants.put(in.getId(), in);
+//        in = new Inhabitant("Jao", "Xis", 24, 3000.0);
+//        inhabitants.put(in.getId(), in);
     }
 
     @Override
-    public Optional<Inhabitant> get(UUID id) {
+    public Optional<Inhabitant> get(Long id) {
         return Optional.ofNullable(inhabitants.get(id));
+    }
+
+    @Override
+    public Inhabitant getByEmail(String email) {
+        return new Inhabitant("", "");
     }
 
     @Override
@@ -36,11 +41,11 @@ public class InhabitantDao implements Dao<Inhabitant> {
 
     @Override
     public void update(Inhabitant inhabitant, String[] params) {
-        inhabitant.setName(Objects.requireNonNull(params[0], "Name cannot be null"));
-        inhabitant.setSurname(Objects.requireNonNull(params[1], "Surname cannot be null"));
-        inhabitant.setAge(Integer.parseInt(params[2]));
-        inhabitant.setCost(Double.parseDouble(params[3]));
-        inhabitants.put(inhabitant.getId(), inhabitant);
+//        inhabitant.setName(Objects.requireNonNull(params[0], "Name cannot be null"));
+//        inhabitant.setSurname(Objects.requireNonNull(params[1], "Surname cannot be null"));
+//        inhabitant.setAge(Integer.parseInt(params[2]));
+//        inhabitant.setCost(Double.parseDouble(params[3]));
+//        inhabitants.put(inhabitant.getId(), inhabitant);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.example.viladafolha.filters;
 
-import com.example.viladafolha.model.CredentialsDTO;
-import com.example.viladafolha.model.User;
+import com.example.viladafolha.model.transport.CredentialsDTO;
 import com.example.viladafolha.model.UserSpringSecurity;
+import com.example.viladafolha.model.transport.JwtDTO;
 import com.example.viladafolha.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +28,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private JWTUtil jwtUtil;
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+        setAuthenticationFailureHandler(new JWTAuthenticationFailureHandler());
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
@@ -56,33 +56,32 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String email = ((UserSpringSecurity) authResult.getPrincipal()).getUsername();
         String password = ((UserSpringSecurity) authResult.getPrincipal()).getPassword();
-        String token = jwtUtil.generateToken(new User(email, password));
+        JwtDTO token = jwtUtil.generateToken(email);
 
-        response
-                .addHeader("Authorization", "Bearer " + token);
+        response.addHeader("Authorization", token.getFullToken());
         response.setStatus(200);
     }
 
     private class JWTAuthenticationFailureHandler implements AuthenticationFailureHandler {
-		@Override
-		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException exception) throws IOException, ServletException {
-			response.setStatus(401);
-			response.setContentType("application/json");
-			response.getWriter().append(json());
-		}
+        @Override
+        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                            AuthenticationException exception) throws IOException, ServletException {
+            response.setStatus(401);
+            response.setContentType("application/json");
+            response.getWriter().append(json());
+        }
 
-		private String json() {
-			long date = new Date().getTime();
-			JsonObject j = new JsonObject();
+        private String json() {
+            long date = new Date().getTime();
+            JsonObject j = new JsonObject();
 
-			j.addProperty("timestamp", date);
-			j.addProperty("status", "401");
-			j.addProperty("error", "Not authorized");
-			j.addProperty("message", "Login or password invalid");
-			j.addProperty("path", "/login");
-			return j.toString();
-		}
+            j.addProperty("timestamp", date);
+            j.addProperty("status", "401");
+            j.addProperty("error", "Not authorized");
+            j.addProperty("message", "Login or password invalid");
+            j.addProperty("path", "/login");
+            return j.toString();
+        }
 
-	}
+    }
 }

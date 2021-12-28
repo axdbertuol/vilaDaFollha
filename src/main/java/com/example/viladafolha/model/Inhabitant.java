@@ -1,41 +1,40 @@
 package com.example.viladafolha.model;
 
 import lombok.*;
-import java.util.UUID;
 
-@Getter
-@Setter
-@ToString
+import java.time.LocalDateTime;
+import java.util.Set;
+
+
+
+@Data
 public class Inhabitant {
 
-    private UUID id;
+    private Long id;
     private String name;
-    private String surname;
-    private Integer age;
-    private Double cost;
+    private String lastName;
+    private String cpf;
+    private String email;
+    private String password;
+    private LocalDateTime birthday;
+    private Double balance;
+    private Set<String> roles;
 
-    public Inhabitant(String name, String surname, Integer age, Double cost) {
-        this.id = UUID.randomUUID();
+
+    public Inhabitant(String name, String lastName, String cpf, String email,
+                      String password, LocalDateTime birthday, Double balance, Set<String> roles) {
         this.name = name;
-        this.surname = surname;
-        this.age = age;
-        this.cost = cost;
+        this.lastName = lastName;
+        this.cpf = cpf;
+        this.email = email;
+        this.password = password;
+        this.birthday = birthday;
+        this.balance = balance;
+        this.roles = roles;
     }
 
-    public Inhabitant() {
-        this.id = UUID.randomUUID();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Inhabitant that = (Inhabitant) o;
-        return id.equals(that.id) && name.equals(that.name) && surname.equals(that.surname) && age.equals(that.age);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public Inhabitant(String email, String password){
+        this.email = email;
+        this.password = password;
     }
 }

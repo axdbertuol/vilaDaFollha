@@ -24,7 +24,7 @@ public class InhabitantRest {
 
     @GetMapping("/{id}")
     public Inhabitant getInhabitant(@PathVariable(value = "id", name = "id") String id) throws InhabitantNotFoundException {
-        return vilaService.getInhabitant(UUID.fromString(id));
+        return vilaService.getInhabitant(Long.parseLong(id));
     }
 
     @GetMapping("/byName={name}")

@@ -36,11 +36,11 @@ public class VilaService {
 
     public Optional<Double> getTotalCost() {
         List<Inhabitant> list = inhabitantDao.getAll();
-        return list.stream().map(Inhabitant::getCost).reduce(Double::sum);
+        return list.stream().map(Inhabitant::getBalance).reduce(Double::sum);
     }
 
 
-    public Inhabitant getInhabitant(UUID id) throws InhabitantNotFoundException {
+    public Inhabitant getInhabitant(Long id) throws InhabitantNotFoundException {
         return inhabitantDao.get(id).orElseThrow(InhabitantNotFoundException::new);
     }
 
@@ -49,10 +49,10 @@ public class VilaService {
     }
 
     public Optional<Inhabitant> getMostExpensiveInhabitant() {
-        return inhabitantDao.getAll().stream().max(Comparator.comparing(Inhabitant::getCost));
+        return inhabitantDao.getAll().stream().max(Comparator.comparing(Inhabitant::getBalance));
     }
 
-     public Optional<Double> getTotalBalance() {
+    public Optional<Double> getTotalBalance() {
         return Optional.of(getVilaBudget().get() - getTotalCost().get());
     }
 }

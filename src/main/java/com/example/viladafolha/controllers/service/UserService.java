@@ -1,8 +1,9 @@
 package com.example.viladafolha.controllers.service;
 
-import com.example.viladafolha.model.User;
-import com.example.viladafolha.model.UserDao;
+import com.example.viladafolha.model.Inhabitant;
+import com.example.viladafolha.model.InhabitantDao;
 import com.example.viladafolha.model.UserSpringSecurity;
+import com.example.viladafolha.model.transport.JwtDTO;
 import com.example.viladafolha.util.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,29 +16,29 @@ import java.util.ArrayList;
 
 @Service
 public class UserService implements UserDetailsService {
-    private UserDao userDAO;
+    private InhabitantDao inhabitantDao;
     private JWTUtil jwtUtil;
 
-    public UserService(UserDao userDAO, JWTUtil jwtUtil) {
-        this.userDAO = userDAO;
+    public UserService(InhabitantDao inhabitantDao, JWTUtil jwtUtil) {
+        this.inhabitantDao = inhabitantDao;
         this.jwtUtil = jwtUtil;
     }
 
-    public User getUser(String email) {
-        return userDAO.getUser(email);
+    public Inhabitant getInhabitant(String email) {
+        return inhabitantDao.getByEmail(email);
     }
 
-    public String generateToken(User user) {
-        return jwtUtil.generateToken(user);
+    public JwtDTO generateToken(String email) {
+        return jwtUtil.generateToken(email);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = getUser(username);
+        var user = getInhabitant(username);
         if (user == null) {
             throw new UsernameNotFoundException(username);
         }
-        return new UserSpringSecurity(user.getEmail(), user.getPassword(), new ArrayList<>());
+        return new UserSpringSecurity(user.getEmail(), user.getPassword(), user.getRoles());
     }
 
     public Authentication getAuthentication(String token) {
