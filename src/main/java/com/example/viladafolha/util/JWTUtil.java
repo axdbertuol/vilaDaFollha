@@ -20,11 +20,10 @@ public class JWTUtil {
 
     public JWTUtil(@Value("${jwt.secret}") String secret,
                    @Value("${jwt.expiration}") Long expiration
-                   ) {
+    ) {
         this.secret = secret;
         this.expiration = expiration;
     }
-
 
 
     public String getSubject(String token) {
@@ -35,21 +34,38 @@ public class JWTUtil {
     }
 
 
-
-	public JwtDTO generateToken(String email) {
-		Date tokenExpiration = new Date(System.currentTimeMillis() + expiration);
-		String token = Jwts.builder()
-		.setSubject(email)
-		.setExpiration(tokenExpiration)
-		.signWith(SignatureAlgorithm.HS512, secret).compact();
-		return new JwtDTO("Bearer", token, tokenExpiration.getTime());
-	}
+    public JwtDTO generateToken(String email) {
+        Date tokenExpiration = new Date(System.currentTimeMillis() + expiration);
+        String token = Jwts.builder()
+                .setSubject(email)
+                .setExpiration(tokenExpiration)
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
+        return new JwtDTO("Bearer", token, tokenExpiration.getTime());
+    }
 
     public String resolveToken(HttpServletRequest request) {
         var bearerToken = request.getHeader("Authorization");
 
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+
+    private Claims getClaims(String token) {
+        try {
+            Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            return parseClaimsJws.getBody();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getEmailByToken(String token) {
+        Claims claims = getClaims(token);
+        if (claims != null) {
+            return claims.getSubject();
         }
         return null;
     }

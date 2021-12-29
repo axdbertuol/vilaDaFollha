@@ -1,16 +1,15 @@
-package com.example.viladafolha.model;
+package com.example.viladafolha.model.transport;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
-
-
 @Data
-public class Inhabitant {
-
+@EqualsAndHashCode
+public class InhabitantDTO {
     private Long id;
     private String name;
     private String lastName;
@@ -22,7 +21,7 @@ public class Inhabitant {
     private Set<String> roles;
 
 
-    public Inhabitant(String name, String lastName, String cpf, String email,
+    public InhabitantDTO(String name, String lastName, String cpf, String email,
                       String password, Date birthday, Double balance, Set<String> roles) {
         this.name = name;
         this.lastName = lastName;
@@ -34,7 +33,7 @@ public class Inhabitant {
         this.roles = roles;
     }
 
-    public Inhabitant(String email, String password){
+    public InhabitantDTO(String email, String password) {
         this.email = email;
         this.password = password;
     }

@@ -5,6 +5,7 @@ import com.example.viladafolha.model.UserSpringSecurity;
 import com.example.viladafolha.model.transport.JwtDTO;
 import com.example.viladafolha.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,12 +55,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        String email = ((UserSpringSecurity) authResult.getPrincipal()).getUsername();
-        String password = ((UserSpringSecurity) authResult.getPrincipal()).getPassword();
-        JwtDTO token = jwtUtil.generateToken(email);
+        Object principal = authResult.getPrincipal();
+        JwtDTO token = jwtUtil.generateToken((String) principal);
 
         response.addHeader("Authorization", token.getFullToken());
         response.setStatus(200);
+        response.getWriter().append(new Gson().toJson(token));
     }
 
     private class JWTAuthenticationFailureHandler implements AuthenticationFailureHandler {

@@ -3,6 +3,7 @@ package com.example.viladafolha.controllers.service;
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.model.InhabitantDao;
+import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class VilaService {
     @Autowired
     private InhabitantDao inhabitantDao;
 
-    public List<Inhabitant> list() throws InhabitantNotFoundException {
+    public List<InhabitantDTO> list() throws InhabitantNotFoundException {
         if (inhabitantDao.getAll().isEmpty()) {
             throw new InhabitantNotFoundException();
         }
@@ -35,24 +36,24 @@ public class VilaService {
     }
 
     public Optional<Double> getTotalCost() {
-        List<Inhabitant> list = inhabitantDao.getAll();
-        return list.stream().map(Inhabitant::getBalance).reduce(Double::sum);
+        List<InhabitantDTO> list = inhabitantDao.getAll();
+        return list.stream().map(InhabitantDTO::getBalance).reduce(Double::sum);
     }
 
 
-    public Inhabitant getInhabitant(Long id) throws InhabitantNotFoundException {
-        return inhabitantDao.get(id).orElseThrow(InhabitantNotFoundException::new);
+    public InhabitantDTO getInhabitant(Long id) throws InhabitantNotFoundException {
+        return inhabitantDao.getById(id).orElseThrow(InhabitantNotFoundException::new);
     }
 
-    public List<Inhabitant> getInhabitantByName(String name) {
-        return inhabitantDao.getByName(name);
+    public List<InhabitantDTO> getInhabitantByName(String name) {
+        return inhabitantDao.getAllByFilter(name);
     }
 
-    public Optional<Inhabitant> getMostExpensiveInhabitant() {
-        return inhabitantDao.getAll().stream().max(Comparator.comparing(Inhabitant::getBalance));
+    public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
+        return inhabitantDao.getAll().stream().max(Comparator.comparing(InhabitantDTO::getBalance));
     }
 
-    public Optional<Double> getTotalBalance() {
-        return Optional.of(getVilaBudget().get() - getTotalCost().get());
+    public Double getTotalBalance() {
+        return getVilaBudget().get() - getTotalCost().get();
     }
 }

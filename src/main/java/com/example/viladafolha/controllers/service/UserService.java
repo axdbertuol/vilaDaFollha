@@ -1,8 +1,8 @@
 package com.example.viladafolha.controllers.service;
 
-import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.model.InhabitantDao;
 import com.example.viladafolha.model.UserSpringSecurity;
+import com.example.viladafolha.model.transport.InhabitantDTO;
 import com.example.viladafolha.model.transport.JwtDTO;
 import com.example.viladafolha.util.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -24,8 +24,9 @@ public class UserService implements UserDetailsService {
         this.jwtUtil = jwtUtil;
     }
 
-    public Inhabitant getInhabitant(String email) {
-        return inhabitantDao.getByEmail(email);
+    public InhabitantDTO getInhabitant(String email) {
+        Optional<InhabitantDTO> optional = inhabitantDao.getByEmail(email);
+        return optional.orElse(null);
     }
 
     public JwtDTO generateToken(String email) {

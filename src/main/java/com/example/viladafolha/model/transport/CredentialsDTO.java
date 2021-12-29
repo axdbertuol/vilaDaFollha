@@ -8,6 +8,11 @@ public class CredentialsDTO {
     private String email;
     private String password;
 
+    public CredentialsDTO() {
+        this.email = "";
+        this.password = "";
+    }
+
     public CredentialsDTO(String email, String password) {
         this.email = email;
         this.password = password;

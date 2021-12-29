@@ -1,10 +1,10 @@
 package com.example.viladafolha.config;
 
 import com.example.viladafolha.controllers.service.UserService;
+import com.example.viladafolha.filters.CustomAuthenticationProvider;
 import com.example.viladafolha.filters.JWTAuthenticationFilter;
-import com.example.viladafolha.filters.JwtFilter;
+import com.example.viladafolha.filters.JWTAuthorizationFilter;
 import com.example.viladafolha.util.JWTUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,35 +29,39 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
+    private final JWTUtil jwtUtil;
+    private final CustomAuthenticationProvider authenticationProvider;
     private UserService userService;
 
 
-    public WebSecurityConfig(UserService userService) {
+    public WebSecurityConfig(UserService userService, JWTUtil jwtUtil, CustomAuthenticationProvider authenticationProvider) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.authenticationProvider = authenticationProvider;
     }
 
-    private static final String[] PUBLIC_MATCHERS_POST = {"/login"};
+    private static final String[] PUBLIC_MATCHERS_POST = {"/login/**"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(getPasswordEncoder());
+        auth.authenticationProvider(authenticationProvider);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+        http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers(PUBLIC_MATCHERS_POST).permitAll()
-                .anyRequest()
-                .authenticated()
+                .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(
-                        new JwtFilter(userService),
-                        UsernamePasswordAuthenticationFilter.class
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(
+                        new JWTAuthenticationFilter(authenticationManager(), jwtUtil)
+                ).addFilterAfter(
+                        new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userService),
+                        JWTAuthenticationFilter.class
                 );
 
     }
@@ -65,10 +69,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
     @Override
     public void configure(WebSecurity web) throws Exception {
         super.configure(web);
-        web
-                .ignoring()
-                .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST);
-
     }
 
     @Bean
