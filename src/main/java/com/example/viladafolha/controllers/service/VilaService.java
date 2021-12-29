@@ -6,6 +6,7 @@ import com.example.viladafolha.model.InhabitantDao;
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -21,9 +22,6 @@ public class VilaService {
     private InhabitantDao inhabitantDao;
 
     public List<InhabitantDTO> list() throws InhabitantNotFoundException {
-        if (inhabitantDao.getAll().isEmpty()) {
-            throw new InhabitantNotFoundException();
-        }
         return inhabitantDao.getAll();
     }
 
@@ -49,11 +47,23 @@ public class VilaService {
         return inhabitantDao.getAllByFilter(name);
     }
 
+    public List<InhabitantDTO> getInhabitantByBirthdayMonth(Integer month) {
+        return inhabitantDao.getAllByFilter(month);
+    }
+
     public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
         return inhabitantDao.getAll().stream().max(Comparator.comparing(InhabitantDTO::getBalance));
     }
 
     public Double getTotalBalance() {
-        return getVilaBudget().get() - getTotalCost().get();
+        return getVilaBudget().orElse(0.0) - getTotalCost().orElse(0.0);
+    }
+
+    public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
+        return inhabitantDao.getAllByThatAgeOrOlder(age);
+    }
+
+    public Inhabitant createInhabitant(InhabitantDTO inhab) {
+        return inhabitantDao.create(inhab).orElse(null);
     }
 }

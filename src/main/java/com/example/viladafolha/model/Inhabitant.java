@@ -1,11 +1,12 @@
 package com.example.viladafolha.model;
 
+import com.example.viladafolha.model.transport.InhabitantDTO;
 import lombok.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
-
 
 
 @Data
@@ -28,14 +29,28 @@ public class Inhabitant {
         this.lastName = lastName;
         this.cpf = cpf;
         this.email = email;
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);
         this.birthday = birthday;
         this.balance = balance;
         this.roles = roles;
     }
 
-    public Inhabitant(String email, String password){
+    public Inhabitant(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    public Inhabitant(InhabitantDTO inhabDto) {
+        this(
+                inhabDto.getName(),
+                inhabDto.getLastName(),
+                inhabDto.getCpf(),
+                inhabDto.getEmail(),
+                new BCryptPasswordEncoder().encode(inhabDto.getPassword()),
+                inhabDto.getBirthday(),
+                inhabDto.getBalance(),
+                inhabDto.getRoles()
+        );
+        this.setId(inhabDto.getId());
     }
 }

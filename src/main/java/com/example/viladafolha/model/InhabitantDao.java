@@ -2,6 +2,8 @@ package com.example.viladafolha.model;
 
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -20,9 +22,38 @@ public class InhabitantDao {
         this.connection = connection;
     }
 
+
+    public Optional<Inhabitant> create(InhabitantDTO inhabDto) {
+        InhabitantDTO inhabitant = null;
+
+        try (PreparedStatement pStmt = connection.prepareStatement(
+                "insert into inhabitants(name, last_name, cpf, email, password, birthday, balance) values (?,?,?,?,?,?,?)")
+        ) {
+            pStmt.setString(1, inhabDto.getName());
+            pStmt.setString(2, inhabDto.getLastName());
+            pStmt.setString(3, inhabDto.getCpf());
+            pStmt.setString(4, inhabDto.getEmail());
+            pStmt.setString(5, inhabDto.getPassword());
+            pStmt.setDate(6, (java.sql.Date) inhabDto.getBirthday());
+            pStmt.setDouble(7, inhabDto.getBalance());
+            pStmt.execute();
+            ResultSet resultSet = pStmt.getResultSet();
+            while (resultSet.next()) {
+                inhabitant = extractInhabitant(resultSet);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        assert inhabitant != null;
+        return Optional.of(new Inhabitant(inhabitant));
+    }
+
     public Optional<InhabitantDTO> getById(Long id) {
         InhabitantDTO inhabitant = null;
-        try (PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM inhabitants WHERE id=?")) {
+        try (PreparedStatement pStmt = connection.prepareStatement(
+                "SELECT name, last_name, cpf, email, password, birthday, balance, roles FROM inhabitants WHERE id=?")
+        ) {
             pStmt.setLong(1, id);
             pStmt.execute();
             ResultSet resultSet = pStmt.getResultSet();
@@ -84,13 +115,38 @@ public class InhabitantDao {
         }
         return inhabitants;
     }
+
     public List<InhabitantDTO> getAllByFilter(Integer month) {
         List<InhabitantDTO> inhabitants = new ArrayList<>();
-        try (PreparedStatement pStmt =
-                     connection.prepareStatement("SELECT id, name, date_part('month', birthday) m FROM inhabitants WHERE m=?")) {
+        try (PreparedStatement pStmt = connection.prepareStatement(
+                "SELECT id, name, birthday FROM inhabitants WHERE date_part('month', birthday)=?"
+        )) {
             pStmt.setInt(1, month);
             pStmt.execute();
             ResultSet resultSet = pStmt.getResultSet();
+
+            while (resultSet.next()) {
+                inhabitants.add(extractInhabitant(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return inhabitants;
+    }
+
+    // 15
+    //
+
+    public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
+        List<InhabitantDTO> inhabitants = new ArrayList<>();
+        try (PreparedStatement pStmt = connection.prepareStatement(
+                "SELECT id, name, birthday FROM inhabitants WHERE extract(year from AGE(birthday)) >= ?"
+        )) {
+            pStmt.setInt(1, age);
+            pStmt.execute();
+            ResultSet resultSet = pStmt.getResultSet();
+
             while (resultSet.next()) {
                 inhabitants.add(extractInhabitant(resultSet));
             }
@@ -121,23 +177,64 @@ public class InhabitantDao {
 
 
     private InhabitantDTO extractInhabitant(ResultSet resultSet) throws SQLException {
-        Long id = resultSet.getLong("id");
-        String name = resultSet.getString("name");
-        String lastName = resultSet.getString("lastName");
-        String cpf = resultSet.getString("cpf");
-        String email = resultSet.getString("email");
-        String password = resultSet.getString("password");
-        Date birthday = resultSet.getDate("birthday");
-        Double balance = resultSet.getDouble("balance");
+        Long id = null;
+        String name = "";
+        String lastName = "";
+        String cpf = "";
+        String email = "";
+        String password = "";
+        Date birthday = null;
+        Double balance = null;
+        Set<String> roles = new HashSet<>();
 
-        String[] roles_arr = (String[]) resultSet.getArray("roles").getArray();
-        Set<String> roles = Arrays.stream(roles_arr).filter(Objects::nonNull).map(String.class::cast).collect(Collectors.toSet());
+        try {
+            id = resultSet.getLong("id");
+        } catch (SQLException ignored) {
+        }
 
+        try {
+            name = resultSet.getString("name");
+        } catch (SQLException ignored) {
+
+        }
+        try {
+            lastName = resultSet.getString("last_name");
+        } catch (SQLException ignored) {
+
+        }
+        try {
+            cpf = resultSet.getString("cpf");
+        } catch (SQLException ignored) {
+
+        }
+        try {
+            email = resultSet.getString("email");
+        } catch (SQLException ignored) {
+        }
+        try {
+            password = resultSet.getString("password");
+        } catch (SQLException ignored) {
+        }
+        try {
+            birthday = resultSet.getDate("birthday");
+        } catch (SQLException ignored) {
+        }
+        try {
+            balance = resultSet.getDouble("balance");
+        } catch (SQLException ignored) {
+        }
+        try {
+            String[] roles_arr = (String[]) resultSet.getArray("roles").getArray();
+            roles = Arrays.stream(roles_arr).filter(Objects::nonNull).map(String.class::cast).collect(Collectors.toSet());
+        } catch (SQLException ignored) {
+        }
 
         InhabitantDTO inhabitant = new InhabitantDTO(
                 name, lastName, cpf, email, password, birthday, balance, roles
         );
         inhabitant.setId(id);
+
         return inhabitant;
     }
+
 }
