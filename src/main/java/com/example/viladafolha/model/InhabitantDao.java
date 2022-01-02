@@ -45,6 +45,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         inhabDto.setId(id);
         return Optional.of(new Inhabitant(inhabDto));
@@ -64,6 +65,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return Optional.ofNullable(inhabitant);
     }
@@ -81,6 +83,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return Optional.ofNullable(inhabitant);
     }
@@ -96,6 +99,7 @@ public class InhabitantDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return inhabitants;
     }
@@ -113,6 +117,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return inhabitants;
     }
@@ -132,6 +137,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return inhabitants;
     }
@@ -152,6 +158,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return inhabitants;
     }
@@ -166,6 +173,7 @@ public class InhabitantDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
 
         return inhabitantDto;

@@ -49,6 +49,9 @@ public class UserService implements UserDetailsService {
     }
 
     public Inhabitant createInhabitant(InhabitantDTO inhab) {
+        if(getInhabitant(inhab.getEmail()) != null){
+            throw new RuntimeException("That email is already registered");
+        }
         return inhabitantDao.create(inhab).orElse(null);
     }
 
