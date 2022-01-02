@@ -62,11 +62,8 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public InhabitantDTO removeInhabitant(String email) {
-        var inhabitantDTO = getInhabitant(email);
-        if (inhabitantDTO == null) {
-            throw new UsernameNotFoundException(email);
-        }
+    public InhabitantDTO removeInhabitant(Long id) throws InhabitantNotFoundException {
+        var inhabitantDTO = getInhabitant(id);
         return inhabitantDao.remove(inhabitantDTO);
     }
 }

@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/village/inhabitants")
@@ -32,8 +34,18 @@ public class InhabitantRest {
     }
 
     @GetMapping("/{id}")
-    public InhabitantDTO getInhabitant(@PathVariable(value = "id") String id) throws InhabitantNotFoundException {
-        return userService.getInhabitant(Long.parseLong(id));
+    public String getInhabitant(@PathVariable(value = "id") String id) throws InhabitantNotFoundException {
+        JsonObject response = new JsonObject();
+        InhabitantDTO inhabitantDTO = userService.getInhabitant(Long.parseLong(id));
+        response.addProperty("http_status", String.valueOf(HttpStatus.OK));
+        response.addProperty("name", inhabitantDTO.getName());
+        response.addProperty("cpf", inhabitantDTO.getCpf());
+        response.addProperty("email", inhabitantDTO.getEmail());
+        response.addProperty("password", inhabitantDTO.getPassword());
+        response.addProperty("birthday", inhabitantDTO.getBirthday().toString());
+        response.addProperty("balance", inhabitantDTO.getBalance());
+        response.addProperty("roles", Arrays.toString(inhabitantDTO.getRoles().toArray()));
+        return response.toString();
     }
 
     @GetMapping("/byName={name}")
@@ -70,15 +82,11 @@ public class InhabitantRest {
         return response.toString();
     }
 
-    @PostMapping(
-            path = "/remove",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public String removeInhabitant(@RequestBody CredentialsDTO credentialsDTO) {
+    @DeleteMapping(value = "/remove/{id}")
+    public String removeInhabitant(@PathVariable Long id) throws InhabitantNotFoundException {
 
         JsonObject response = new JsonObject();
-        InhabitantDTO inhabitant = userService.removeInhabitant(credentialsDTO.getEmail());
+        InhabitantDTO inhabitant = userService.removeInhabitant(id);
 
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
         response.addProperty("id", inhabitant.getId());

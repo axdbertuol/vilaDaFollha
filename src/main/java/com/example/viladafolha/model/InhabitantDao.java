@@ -15,11 +15,9 @@ import java.util.stream.Collectors;
 public class InhabitantDao {
 
     Connection connection;
-
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    @Autowired
-    public InhabitantDao(Connection connection, ApplicationContext context) {
+    public InhabitantDao(Connection connection) {
         this.connection = connection;
     }
 
@@ -57,7 +55,7 @@ public class InhabitantDao {
     public Optional<InhabitantDTO> getById(Long id) {
         InhabitantDTO inhabitant = null;
         try (PreparedStatement pStmt = connection.prepareStatement(
-                "SELECT name, last_name, cpf, email, password, birthday, balance, roles FROM inhabitants WHERE id=?")
+                "SELECT * FROM inhabitants WHERE id=?")
         ) {
             pStmt.setLong(1, id);
             pStmt.execute();
@@ -161,26 +159,11 @@ public class InhabitantDao {
     }
 
 
-    public void save(Inhabitant inhabitant) {
-//        inhabitants.put(inhabitant.getId(), inhabitant);
-    }
-
-
-    public void update(Inhabitant inhabitant, String[] params) {
-//        inhabitant.setName(Objects.requireNonNull(params[0], "Name cannot be null"));
-//        inhabitant.setSurname(Objects.requireNonNull(params[1], "Surname cannot be null"));
-//        inhabitant.setAge(Integer.parseInt(params[2]));
-//        inhabitant.setCost(Double.parseDouble(params[3]));
-//        inhabitants.put(inhabitant.getId(), inhabitant);
-    }
-
-    // TODO
     public InhabitantDTO remove(InhabitantDTO inhabitantDto) {
         try (PreparedStatement pStmt = connection.prepareStatement(
-                "delete from inhabitants where email=?")
+                "delete from inhabitants where id=?")
         ) {
-            pStmt.setString(1, inhabitantDto.getEmail());
-//            pStmt.setLong(2, inhabitantDto.getId());
+            pStmt.setLong(1, inhabitantDto.getId());
             pStmt.execute();
 
         } catch (SQLException e) {
