@@ -22,11 +22,11 @@ public class FinancialReportRest {
     }
 
     @GetMapping()
-    public FinancialReport getMostExpensiveInhabitant() throws InhabitantNotFoundException {
-        Double totalCost = vilaService.getTotalCost().orElseThrow(NullPointerException::new);
-        Double budget = vilaService.getVilaBudget().orElseThrow(NullPointerException::new);
+    public FinancialReport getMostExpensiveInhabitant() {
+        Double totalCost = vilaService.getTotalCost().orElseThrow(RuntimeException::new);
+        Double budget = vilaService.getVilaBudget().orElseThrow(RuntimeException::new);
         Double totalBalance = vilaService.getTotalBalance();
-        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant().orElseThrow(InhabitantNotFoundException::new);
+        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant().orElseThrow(RuntimeException::new);
 
         return new FinancialReport(totalCost, budget, totalBalance, inhabitant);
 

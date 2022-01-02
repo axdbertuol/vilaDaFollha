@@ -179,6 +179,21 @@ public class InhabitantDao {
         return inhabitantDto;
     }
 
+    public void updatePassword(InhabitantDTO inhabitantDTO) {
+
+          try (PreparedStatement pStmt = connection.prepareStatement(
+                "update inhabitants set password=? where email=?")
+        ) {
+            pStmt.setString(1, inhabitantDTO.getPassword());
+            pStmt.setString(2, inhabitantDTO.getEmail());
+            pStmt.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
     private InhabitantDTO extractInhabitant(ResultSet resultSet) throws SQLException {
         Long id = null;
@@ -240,5 +255,6 @@ public class InhabitantDao {
 
         return inhabitant;
     }
+
 
 }

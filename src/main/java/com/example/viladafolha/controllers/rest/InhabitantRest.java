@@ -6,6 +6,7 @@ import com.example.viladafolha.controllers.service.VilaService;
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.model.transport.InhabitantDTO;
+import com.example.viladafolha.model.transport.MailDTO;
 import com.example.viladafolha.util.JsonResponse;
 import com.google.gson.JsonObject;
 import org.springframework.http.HttpStatus;
@@ -108,6 +109,15 @@ public class InhabitantRest {
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
         response.addProperty("msg", "Inhabitant " + inhabitant.getEmail() + " deleted from DB.");
         return response.toString();
+    }
+
+    @PostMapping(path = "/generate-new-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public String forgot(@RequestBody MailDTO mail) {
+
+        userService.sendNewPassword(mail.getEmail());
+        return "New password was sent to your email";
     }
 
 }
