@@ -75,7 +75,20 @@ public class InhabitantRest {
     public String createInhabitant(@RequestBody InhabitantDTO inhab) {
 
         JsonObject response = new JsonObject();
-        //TODO: check password validity
+        // check email
+        if (!inhab.getEmail().matches(
+                "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        )) {
+            response.addProperty("http_status", String.valueOf(HttpStatus.NOT_ACCEPTABLE));
+            response.addProperty("msg", "Invalid email");
+            return response.toString();
+        }
+        // check password
+        if (!inhab.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            response.addProperty("http_status", String.valueOf(HttpStatus.NOT_ACCEPTABLE));
+            response.addProperty("msg", "Password must contain 8 characters with at least 1 uppercase letter, 1 lowercase letter, 1 special character and 1 number digit");
+            return response.toString();
+        }
 
         Inhabitant inhabitant = userService.createInhabitant(inhab);
 
