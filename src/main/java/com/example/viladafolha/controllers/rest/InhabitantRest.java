@@ -5,8 +5,8 @@ import com.example.viladafolha.controllers.service.UserService;
 import com.example.viladafolha.controllers.service.VilaService;
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.Inhabitant;
-import com.example.viladafolha.model.transport.CredentialsDTO;
 import com.example.viladafolha.model.transport.InhabitantDTO;
+import com.example.viladafolha.util.JsonResponse;
 import com.google.gson.JsonObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/village/inhabitants")
@@ -29,8 +28,10 @@ public class InhabitantRest {
     }
 
     @GetMapping("/list")
-    public List<InhabitantDTO> getListOfInhabitants() {
-        return vilaService.list();
+    public String getListOfInhabitants() {
+        List<InhabitantDTO> inhabitantDTOList = vilaService.list();
+
+        return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/{id}")
@@ -49,18 +50,21 @@ public class InhabitantRest {
     }
 
     @GetMapping("/byName={name}")
-    public List<InhabitantDTO> getInhabitantsByName(@PathVariable(value = "name") String name) {
-        return userService.getInhabitantByName(name);
+    public String getInhabitantsByName(@PathVariable(value = "name") String name) {
+        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByName(name);
+        return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/byAge={age}")
-    public List<InhabitantDTO> getInhabitantsByThatAgeOrOlder(@PathVariable(value = "age") String age) {
-        return userService.getAllByThatAgeOrOlder(Integer.parseInt(age));
+    public String getInhabitantsByThatAgeOrOlder(@PathVariable(value = "age") String age) {
+        List<InhabitantDTO> inhabitantDTOList = userService.getAllByThatAgeOrOlder(Integer.parseInt(age));
+        return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/byMonth={month}")
-    public List<InhabitantDTO> getInhabitantsByBirthdayMonth(@PathVariable(value = "month") String month) {
-        return userService.getInhabitantByBirthdayMonth(Integer.parseInt(month));
+    public String getInhabitantsByBirthdayMonth(@PathVariable(value = "month") String month) {
+        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByBirthdayMonth(Integer.parseInt(month));
+        return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @PostMapping(
@@ -89,10 +93,7 @@ public class InhabitantRest {
         InhabitantDTO inhabitant = userService.removeInhabitant(id);
 
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
-        response.addProperty("id", inhabitant.getId());
-        response.addProperty("name", inhabitant.getName());
-        response.addProperty("email", inhabitant.getEmail());
-        response.addProperty("msg", "Inhabitant deleted from DB.");
+        response.addProperty("msg", "Inhabitant " + inhabitant.getEmail() + " deleted from DB.");
         return response.toString();
     }
 

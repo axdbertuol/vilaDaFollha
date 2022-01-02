@@ -53,6 +53,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/village/inhabitants/").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/village/inhabitants/create", "/village/financial/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
                 .anyRequest().authenticated()
                 .and()

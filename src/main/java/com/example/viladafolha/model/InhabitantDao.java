@@ -1,8 +1,6 @@
 package com.example.viladafolha.model;
 
 import com.example.viladafolha.model.transport.InhabitantDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
@@ -90,7 +88,7 @@ public class InhabitantDao {
     public List<InhabitantDTO> getAll() {
         List<InhabitantDTO> inhabitants = new ArrayList<>();
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("SELECT id, name FROM inhabitants");
+            stmt.execute("SELECT * FROM inhabitants");
             ResultSet resultSet = stmt.getResultSet();
             while (resultSet.next()) {
                 InhabitantDTO inhabitant = extractInhabitant(resultSet);
