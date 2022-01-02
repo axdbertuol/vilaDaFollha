@@ -16,8 +16,8 @@ import java.io.IOException;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-	private JWTUtil jwtUtil;
-	private UserService userService;
+	private final JWTUtil jwtUtil;
+	private final UserService userService;
 
 	public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
                                   UserService userService) {
@@ -49,6 +49,5 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 					user.getUsername(), null, user.getAuthorities());
 		}
 		return null;
-
 	}
 }

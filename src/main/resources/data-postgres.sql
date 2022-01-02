@@ -3,7 +3,7 @@ create table inhabitants
     id        bigserial primary key,
     name      varchar(100),
     last_name varchar(200),
-    cpf       varchar(11),
+    cpf       varchar(11) unique,
     email     varchar(150) unique,
     password  varchar(255),
     birthday  date,

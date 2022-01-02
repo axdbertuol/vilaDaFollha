@@ -1,7 +1,6 @@
 package com.example.viladafolha.exceptions;
 
 import java.io.Serial;
-import java.util.function.Supplier;
 
 public class InhabitantNotFoundException extends Throwable {
     @Serial

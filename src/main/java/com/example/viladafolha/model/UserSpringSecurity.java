@@ -17,12 +17,6 @@ public class UserSpringSecurity implements UserDetails {
 	private final String password;
 	private final Collection<? extends GrantedAuthority> authorities;
 
-	public UserSpringSecurity(String email, String password, Collection<? extends GrantedAuthority> authorities) {
-		this.email = email;
-		this.password = password;
-		this.authorities = authorities;
-	}
-
 	public UserSpringSecurity(String email, String password, Set<String> authorities) {
 		this.email = email;
 		this.password = password;

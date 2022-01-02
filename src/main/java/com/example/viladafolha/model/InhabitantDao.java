@@ -2,51 +2,56 @@ package com.example.viladafolha.model;
 
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 public class InhabitantDao {
 
     Connection connection;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     @Autowired
-    public InhabitantDao(Connection connection) {
+    public InhabitantDao(Connection connection, ApplicationContext context) {
         this.connection = connection;
     }
 
 
     public Optional<Inhabitant> create(InhabitantDTO inhabDto) {
-        InhabitantDTO inhabitant = null;
+        inhabDto.setPassword(encoder.encode(inhabDto.getPassword()));
+        Long id = null;
 
         try (PreparedStatement pStmt = connection.prepareStatement(
-                "insert into inhabitants(name, last_name, cpf, email, password, birthday, balance) values (?,?,?,?,?,?,?)")
+                "insert into inhabitants(name, last_name, cpf, email, password, birthday, balance, roles) values (?,?,?,?,?,?,?,?)",
+                Statement.RETURN_GENERATED_KEYS)
         ) {
+            Array roles = connection.createArrayOf("VARCHAR", new Object[]{"ROLE_USER"});
             pStmt.setString(1, inhabDto.getName());
             pStmt.setString(2, inhabDto.getLastName());
             pStmt.setString(3, inhabDto.getCpf());
             pStmt.setString(4, inhabDto.getEmail());
             pStmt.setString(5, inhabDto.getPassword());
-            pStmt.setDate(6, (java.sql.Date) inhabDto.getBirthday());
+            pStmt.setDate(6, new java.sql.Date(inhabDto.getBirthday().getTime()));
             pStmt.setDouble(7, inhabDto.getBalance());
+            pStmt.setArray(8, roles);
             pStmt.execute();
-            ResultSet resultSet = pStmt.getResultSet();
+            ResultSet resultSet = pStmt.getGeneratedKeys();
             while (resultSet.next()) {
-                inhabitant = extractInhabitant(resultSet);
+                id = resultSet.getLong(1);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        assert inhabitant != null;
-        return Optional.of(new Inhabitant(inhabitant));
+        inhabDto.setId(id);
+        return Optional.of(new Inhabitant(inhabDto));
     }
 
     public Optional<InhabitantDTO> getById(Long id) {
@@ -135,8 +140,6 @@ public class InhabitantDao {
         return inhabitants;
     }
 
-    // 15
-    //
 
     public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
         List<InhabitantDTO> inhabitants = new ArrayList<>();
@@ -171,8 +174,20 @@ public class InhabitantDao {
 //        inhabitants.put(inhabitant.getId(), inhabitant);
     }
 
-    public void delete(Inhabitant inhabitant) {
-//        inhabitants.remove(inhabitant.getId());
+    // TODO
+    public InhabitantDTO remove(InhabitantDTO inhabitantDto) {
+        try (PreparedStatement pStmt = connection.prepareStatement(
+                "delete from inhabitants where email=?")
+        ) {
+            pStmt.setString(1, inhabitantDto.getEmail());
+//            pStmt.setLong(2, inhabitantDto.getId());
+            pStmt.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return inhabitantDto;
     }
 
 
@@ -216,7 +231,7 @@ public class InhabitantDao {
         } catch (SQLException ignored) {
         }
         try {
-            birthday = resultSet.getDate("birthday");
+            birthday = new Date(resultSet.getDate("birthday").getTime());
         } catch (SQLException ignored) {
         }
         try {

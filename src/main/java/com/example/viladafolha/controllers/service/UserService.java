@@ -1,27 +1,25 @@
 package com.example.viladafolha.controllers.service;
 
+import com.example.viladafolha.exceptions.InhabitantNotFoundException;
+import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.model.InhabitantDao;
 import com.example.viladafolha.model.UserSpringSecurity;
 import com.example.viladafolha.model.transport.InhabitantDTO;
-import com.example.viladafolha.model.transport.JwtDTO;
-import com.example.viladafolha.util.JWTUtil;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
-    private InhabitantDao inhabitantDao;
-    private JWTUtil jwtUtil;
+    private final InhabitantDao inhabitantDao;
 
-    public UserService(InhabitantDao inhabitantDao, JWTUtil jwtUtil) {
+    public UserService(InhabitantDao inhabitantDao) {
         this.inhabitantDao = inhabitantDao;
-        this.jwtUtil = jwtUtil;
     }
 
     public InhabitantDTO getInhabitant(String email) {
@@ -29,8 +27,29 @@ public class UserService implements UserDetailsService {
         return optional.orElse(null);
     }
 
-    public JwtDTO generateToken(String email) {
-        return jwtUtil.generateToken(email);
+
+    public InhabitantDTO getInhabitant(Long id) throws InhabitantNotFoundException {
+        return inhabitantDao.getById(id).orElseThrow(InhabitantNotFoundException::new);
+    }
+
+    public List<InhabitantDTO> getInhabitantByName(String name) {
+        return inhabitantDao.getAllByFilter(name);
+    }
+
+    public List<InhabitantDTO> getInhabitantByBirthdayMonth(Integer month) {
+        return inhabitantDao.getAllByFilter(month);
+    }
+
+    public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
+        return inhabitantDao.getAll().stream().max(Comparator.comparing(InhabitantDTO::getBalance));
+    }
+
+    public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
+        return inhabitantDao.getAllByThatAgeOrOlder(age);
+    }
+
+    public Inhabitant createInhabitant(InhabitantDTO inhab) {
+        return inhabitantDao.create(inhab).orElse(null);
     }
 
     @Override
@@ -42,17 +61,12 @@ public class UserService implements UserDetailsService {
         return new UserSpringSecurity(user.getEmail(), user.getPassword(), user.getRoles());
     }
 
-    public Authentication getAuthentication(String token) {
-        var userDetails = loadUserByUsername(jwtUtil.getSubject(token));
-        return new UsernamePasswordAuthenticationToken(
-                userDetails,
-                "",
-                userDetails.getAuthorities()
-        );
-    }
 
-
-    public JWTUtil getJwtUtil() {
-        return jwtUtil;
+    public InhabitantDTO removeInhabitant(String email) {
+        var inhabitantDTO = getInhabitant(email);
+        if (inhabitantDTO == null) {
+            throw new UsernameNotFoundException(email);
+        }
+        return inhabitantDao.remove(inhabitantDTO);
     }
 }

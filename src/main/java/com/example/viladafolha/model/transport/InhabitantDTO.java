@@ -3,7 +3,6 @@ package com.example.viladafolha.model.transport;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -36,5 +35,10 @@ public class InhabitantDTO {
     public InhabitantDTO(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    public InhabitantDTO(){
+        this.email = "";
+        this.password = "";
     }
 }

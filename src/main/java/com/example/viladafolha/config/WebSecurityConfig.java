@@ -48,6 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
         auth.authenticationProvider(authenticationProvider);
     }
 
+    //TODO
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -71,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
         super.configure(web);
     }
 
-    @Bean
+    @Bean(name = "passEncoder")
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }

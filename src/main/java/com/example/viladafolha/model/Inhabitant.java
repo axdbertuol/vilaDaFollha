@@ -4,7 +4,6 @@ import com.example.viladafolha.model.transport.InhabitantDTO;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -35,10 +34,6 @@ public class Inhabitant {
         this.roles = roles;
     }
 
-    public Inhabitant(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 
     public Inhabitant(InhabitantDTO inhabDto) {
         this(
@@ -46,7 +41,7 @@ public class Inhabitant {
                 inhabDto.getLastName(),
                 inhabDto.getCpf(),
                 inhabDto.getEmail(),
-                new BCryptPasswordEncoder().encode(inhabDto.getPassword()),
+                inhabDto.getPassword(),
                 inhabDto.getBirthday(),
                 inhabDto.getBalance(),
                 inhabDto.getRoles()
