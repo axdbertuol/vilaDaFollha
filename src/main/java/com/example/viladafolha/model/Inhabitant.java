@@ -25,12 +25,12 @@ public class Inhabitant {
     private String password;
     private Date birthday;
     private Double balance;
-    @ElementCollection
-    private Set<String> roles;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Role> roles;
 
 
     public Inhabitant(String name, String lastName, String cpf, String email,
-                      String password, Date birthday, Double balance, Set<String> roles) {
+                      String password, Date birthday, Double balance, Set<Role> roles) {
         this.name = name;
         this.lastName = lastName;
         this.cpf = cpf;
@@ -124,11 +124,11 @@ public class Inhabitant {
         this.balance = balance;
     }
 
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
