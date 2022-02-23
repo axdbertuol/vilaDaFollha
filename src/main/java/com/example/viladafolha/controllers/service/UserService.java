@@ -2,10 +2,9 @@ package com.example.viladafolha.controllers.service;
 
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.Inhabitant;
-import com.example.viladafolha.model.InhabitantDao;
+import com.example.viladafolha.model.InhabitantRepo;
 import com.example.viladafolha.model.UserSpringSecurity;
 import com.example.viladafolha.model.transport.InhabitantDTO;
-import com.mchange.net.MailSender;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,45 +21,44 @@ import java.util.Random;
 
 @Service
 public class UserService implements UserDetailsService {
-    private final InhabitantDao inhabitantDao;
+    private final InhabitantRepo inhabitantRepo;
     private final JavaMailSender mailSender;
 
-    public UserService(InhabitantDao inhabitantDao, JavaMailSender mailSender) {
-        this.inhabitantDao = inhabitantDao;
+    public UserService(InhabitantRepo inhabitantRepo, JavaMailSender mailSender) {
+        this.inhabitantRepo = inhabitantRepo;
         this.mailSender = mailSender;
     }
 
     public InhabitantDTO getInhabitant(String email) {
-        Optional<InhabitantDTO> optional = inhabitantDao.getByEmail(email);
-        return optional.orElse(null);
+        return inhabitantRepo.findByEmail(email).orElseThrow(RuntimeException::new).toDTO();
     }
 
 
     public InhabitantDTO getInhabitant(Long id) throws InhabitantNotFoundException {
-        return inhabitantDao.getById(id).orElseThrow(InhabitantNotFoundException::new);
+        return inhabitantRepo.findById(id).orElseThrow(InhabitantNotFoundException::new).toDTO();
     }
 
     public List<InhabitantDTO> getInhabitantByName(String name) {
-        return inhabitantDao.getAllByFilter(name);
+        return inhabitantRepo.findAllByName(name);
     }
 
     public List<InhabitantDTO> getInhabitantByBirthdayMonth(Integer month) {
-        return inhabitantDao.getAllByFilter(month);
+        return inhabitantRepo.getAllByFilter(month).stream().map(Inhabitant::toDTO).toList();
     }
 
     public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
-        return inhabitantDao.getAll().stream().max(Comparator.comparing(InhabitantDTO::getBalance));
+        return inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).max(Comparator.comparing(InhabitantDTO::getBalance));
     }
 
     public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
-        return inhabitantDao.getAllByThatAgeOrOlder(age);
+        return inhabitantRepo.getAllByThatAgeOrOlder(age).stream().map(Inhabitant::toDTO).toList();
     }
 
     public Inhabitant createInhabitant(InhabitantDTO inhab) {
         if (getInhabitant(inhab.getEmail()) != null) {
             throw new RuntimeException("That email is already registered");
         }
-        return inhabitantDao.create(inhab).orElse(null);
+        return (Inhabitant) inhabitantRepo.save(new Inhabitant(inhab));
     }
 
     @Override
@@ -73,9 +71,8 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public InhabitantDTO removeInhabitant(Long id) throws InhabitantNotFoundException {
-        var inhabitantDTO = getInhabitant(id);
-        return inhabitantDao.remove(inhabitantDTO);
+    public void removeInhabitant(Long id) throws InhabitantNotFoundException {
+        inhabitantRepo.deleteById(id);
     }
 
     public Boolean sendNewPassword(String email) {
@@ -101,7 +98,7 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException(e.getMessage());
         }
 
-        inhabitantDao.updatePassword(inhabitantDTO);
+        inhabitantRepo.updatePassword(inhabitantDTO.getEmail(), inhabitantDTO.getPassword());
 
 
         return true;

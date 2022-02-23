@@ -2,7 +2,6 @@ package com.example.viladafolha.controllers.rest;
 
 import com.example.viladafolha.controllers.service.UserService;
 import com.example.viladafolha.controllers.service.VilaService;
-import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.FinancialReport;
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.web.bind.annotation.GetMapping;

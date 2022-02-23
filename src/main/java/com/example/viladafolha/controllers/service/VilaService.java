@@ -1,6 +1,7 @@
 package com.example.viladafolha.controllers.service;
 
-import com.example.viladafolha.model.InhabitantDao;
+import com.example.viladafolha.model.Inhabitant;
+import com.example.viladafolha.model.InhabitantRepo;
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,14 @@ public class VilaService {
     private String vilaBudget;
 
 
-    private final InhabitantDao inhabitantDao;
+    private final InhabitantRepo inhabitantRepo;
 
-    public VilaService(InhabitantDao inhabitantDao) {
-        this.inhabitantDao = inhabitantDao;
+    public VilaService(InhabitantRepo inhabitantRepo) {
+        this.inhabitantRepo = inhabitantRepo;
     }
 
     public List<InhabitantDTO> list(){
-        return inhabitantDao.getAll();
+        return inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).toList();
     }
 
     public Optional<Double> getVilaBudget() {
@@ -29,7 +30,7 @@ public class VilaService {
     }
 
     public Optional<Double> getTotalCost() {
-        List<InhabitantDTO> list = inhabitantDao.getAll();
+        List<InhabitantDTO> list = inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).toList();
         return list.stream().map(InhabitantDTO::getBalance).reduce(Double::sum);
     }
 

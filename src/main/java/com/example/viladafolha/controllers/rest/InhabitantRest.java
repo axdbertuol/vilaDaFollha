@@ -104,10 +104,10 @@ public class InhabitantRest {
     public String removeInhabitant(@PathVariable Long id) throws InhabitantNotFoundException {
 
         JsonObject response = new JsonObject();
-        InhabitantDTO inhabitant = userService.removeInhabitant(id);
+        userService.removeInhabitant(id);
 
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
-        response.addProperty("msg", "Inhabitant " + inhabitant.getEmail() + " deleted from DB.");
+        response.addProperty("msg", "Inhabitant with id " + id + " deleted from DB.");
         return response.toString();
     }
 

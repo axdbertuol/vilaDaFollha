@@ -20,8 +20,9 @@ public class InhabitantDTO {
     private Set<String> roles;
 
 
-    public InhabitantDTO(String name, String lastName, String cpf, String email,
+    public InhabitantDTO(Long id, String name, String lastName, String cpf, String email,
                       String password, Date birthday, Double balance, Set<String> roles) {
+        this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.cpf = cpf;

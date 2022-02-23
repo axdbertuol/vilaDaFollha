@@ -40,7 +40,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             ServletInputStream stream = request.getInputStream();
             CredentialsDTO credentials = new ObjectMapper().readValue(stream, CredentialsDTO.class);
-//            String encodedPass = new BCryptPasswordEncoder().encode(credentials.getPassword());
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     credentials.getEmail(),
                     credentials.getPassword(),
