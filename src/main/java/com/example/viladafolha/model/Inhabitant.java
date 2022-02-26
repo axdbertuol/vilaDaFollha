@@ -1,10 +1,10 @@
 package com.example.viladafolha.model;
 
 import com.example.viladafolha.model.transport.InhabitantDTO;
-import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -23,14 +23,15 @@ public class Inhabitant {
     @Column(unique = true)
     private String email;
     private String password;
-    private Date birthday;
+    @Basic
+    private LocalDate birthday;
     private Double balance;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
 
 
     public Inhabitant(String name, String lastName, String cpf, String email,
-                      String password, Date birthday, Double balance, Set<Role> roles) {
+                      String password, LocalDate birthday, Double balance, Set<Role> roles) {
         this.name = name;
         this.lastName = lastName;
         this.cpf = cpf;
@@ -108,11 +109,11 @@ public class Inhabitant {
         this.password = password;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

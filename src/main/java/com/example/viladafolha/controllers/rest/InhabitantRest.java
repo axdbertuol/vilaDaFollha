@@ -4,15 +4,17 @@ package com.example.viladafolha.controllers.rest;
 import com.example.viladafolha.controllers.service.UserService;
 import com.example.viladafolha.controllers.service.VilaService;
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
-import com.example.viladafolha.model.Inhabitant;
+
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import com.example.viladafolha.model.transport.MailDTO;
 import com.example.viladafolha.util.JsonResponse;
 import com.google.gson.JsonObject;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,13 +60,13 @@ public class InhabitantRest {
 
     @GetMapping("/byAge={age}")
     public String getInhabitantsByThatAgeOrOlder(@PathVariable(value = "age") String age) {
-        List<InhabitantDTO> inhabitantDTOList = userService.getAllByThatAgeOrOlder(Integer.parseInt(age));
+        List<InhabitantDTO> inhabitantDTOList = userService.getAllByThatAgeOrOlder(age);
         return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/byMonth={month}")
     public String getInhabitantsByBirthdayMonth(@PathVariable(value = "month") String month) {
-        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByBirthdayMonth(Integer.parseInt(month));
+        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByBirthdayMonth(month);
         return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
@@ -75,28 +77,13 @@ public class InhabitantRest {
     )
     public String createInhabitant(@RequestBody InhabitantDTO inhab) {
 
+        InhabitantDTO inhabitantDto = userService.createInhabitant(inhab);
+
         JsonObject response = new JsonObject();
-        // check email
-        if (!inhab.getEmail().matches(
-                "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        )) {
-            response.addProperty("http_status", String.valueOf(HttpStatus.NOT_ACCEPTABLE));
-            response.addProperty("msg", "Invalid email");
-            return response.toString();
-        }
-        // check password
-        if (!inhab.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
-            response.addProperty("http_status", String.valueOf(HttpStatus.NOT_ACCEPTABLE));
-            response.addProperty("msg", "Password must contain 8 characters with at least 1 uppercase letter, 1 lowercase letter, 1 special character and 1 number digit");
-            return response.toString();
-        }
-
-        Inhabitant inhabitant = userService.createInhabitant(inhab);
-
         response.addProperty("http_status", String.valueOf(HttpStatus.ACCEPTED));
-        response.addProperty("id", inhabitant.getId());
-        response.addProperty("name", inhabitant.getName());
-        response.addProperty("email", inhabitant.getEmail());
+        response.addProperty("id", inhabitantDto.getId());
+        response.addProperty("name", inhabitantDto.getName());
+        response.addProperty("email", inhabitantDto.getEmail());
         return response.toString();
     }
 

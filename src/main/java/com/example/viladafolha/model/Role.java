@@ -1,15 +1,16 @@
 package com.example.viladafolha.model;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-public class Role {
+public class Role implements GrantedAuthority {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private String name;
     @ManyToMany(mappedBy = "roles")
@@ -26,6 +27,7 @@ public class Role {
         this.inhabitants = inhabitants;
         this.privileges = privileges;
     }
+
     public Role(Long id, String name) {
         this.id = id;
         this.name = name;
@@ -63,5 +65,10 @@ public class Role {
 
     public void setPrivileges(Collection<Privilege> privileges) {
         this.privileges = privileges;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.name;
     }
 }

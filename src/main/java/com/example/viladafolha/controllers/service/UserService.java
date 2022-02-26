@@ -2,35 +2,39 @@ package com.example.viladafolha.controllers.service;
 
 import com.example.viladafolha.exceptions.InhabitantNotFoundException;
 import com.example.viladafolha.model.Inhabitant;
-import com.example.viladafolha.model.InhabitantRepo;
+import com.example.viladafolha.repos.InhabitantRepo;
 import com.example.viladafolha.model.UserSpringSecurity;
 import com.example.viladafolha.model.transport.InhabitantDTO;
+import com.example.viladafolha.repos.RoleRepo;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class UserService implements UserDetailsService {
     private final InhabitantRepo inhabitantRepo;
     private final JavaMailSender mailSender;
+    private final PasswordEncoder encoder;
+    private final RoleRepo roleRepo;
 
-    public UserService(InhabitantRepo inhabitantRepo, JavaMailSender mailSender) {
+
+    public UserService(InhabitantRepo inhabitantRepo, JavaMailSender mailSender, @Lazy PasswordEncoder encoder, RoleRepo roleRepo) {
         this.inhabitantRepo = inhabitantRepo;
         this.mailSender = mailSender;
+        this.encoder = encoder;
+        this.roleRepo = roleRepo;
     }
 
     public InhabitantDTO getInhabitant(String email) {
-        return inhabitantRepo.findByEmail(email).orElseThrow(RuntimeException::new).toDTO();
+        return inhabitantRepo.findByEmail(email).isPresent() ? inhabitantRepo.findByEmail(email).get().toDTO() : null;
     }
 
 
@@ -42,23 +46,36 @@ public class UserService implements UserDetailsService {
         return inhabitantRepo.findAllByName(name);
     }
 
-    public List<InhabitantDTO> getInhabitantByBirthdayMonth(Integer month) {
-        return inhabitantRepo.getAllByFilter(month).stream().map(Inhabitant::toDTO).toList();
+    public List<InhabitantDTO> getInhabitantByBirthdayMonth(String month) {
+//        Date date = Date.from(Instant.from(LocalDate.of(2000, Integer.parseInt(month), 1)));
+        return inhabitantRepo.findAllByBirthdayMonth(Integer.parseInt(month)).stream().map(Inhabitant::toDTO).toList();
     }
 
     public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
         return inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).max(Comparator.comparing(InhabitantDTO::getBalance));
     }
 
-    public List<InhabitantDTO> getAllByThatAgeOrOlder(int age) {
-        return inhabitantRepo.getAllByThatAgeOrOlder(age).stream().map(Inhabitant::toDTO).toList();
+    public List<InhabitantDTO> getAllByThatAgeOrOlder(String age) {
+        return inhabitantRepo.findAllByThatAgeOrOlder(Integer.parseInt(age)).stream().map(Inhabitant::toDTO).toList();
     }
 
-    public Inhabitant createInhabitant(InhabitantDTO inhab) {
+    public InhabitantDTO createInhabitant(InhabitantDTO inhab) {
         if (getInhabitant(inhab.getEmail()) != null) {
-            throw new RuntimeException("That email is already registered");
+            throw new RuntimeException("That email is already registered.");
         }
-        return (Inhabitant) inhabitantRepo.save(new Inhabitant(inhab));
+
+        if (!inhab.getEmail().matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")) {
+            throw new RuntimeException("Invalid email.");
+        }
+        if (!inhab.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            throw new RuntimeException(
+                    "Password must contain 8 characters:\n " +
+                            "at least 1 uppercase letter;\n 1 lowercase letter;\n 1 special character;\n 1 number");
+        }
+
+        var userRole = roleRepo.findByName("ROLE_USER").orElseThrow();
+        inhab.setRoles(Set.of(userRole));
+        return inhabitantRepo.save(new Inhabitant(inhab)).toDTO();
     }
 
     @Override
@@ -81,13 +98,13 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException(email);
         }
         String newPass = generatePassword();
-        String encodePass = new BCryptPasswordEncoder().encode(newPass);
+        String encodePass = encoder.encode(newPass);
         inhabitantDTO.setPassword(encodePass);
 
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(inhabitantDTO.getEmail());
-        mailMessage.setSubject("Complete Password Reset!");
+        mailMessage.setSubject("Password reset completed!");
         mailMessage.setFrom("viladafolhax@gmail.com");
         mailMessage.setText("Your new password is " + newPass);
 
@@ -99,8 +116,6 @@ public class UserService implements UserDetailsService {
         }
 
         inhabitantRepo.updatePassword(inhabitantDTO.getEmail(), inhabitantDTO.getPassword());
-
-
         return true;
     }
 
@@ -127,5 +142,9 @@ public class UserService implements UserDetailsService {
             password[i] = combinedChars.charAt(random.nextInt(combinedChars.length()));
         }
         return password;
+    }
+
+    public PasswordEncoder getEncoder() {
+        return encoder;
     }
 }

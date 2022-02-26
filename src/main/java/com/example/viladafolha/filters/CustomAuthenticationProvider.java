@@ -9,15 +9,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private PasswordEncoder encoder;
+
     public CustomAuthenticationProvider(UserService userService) {
         this.userService = userService;
+        encoder = userService.getEncoder();
     }
 
 
@@ -26,12 +29,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String email = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
         UserSpringSecurity user;
-        try{
+        try {
             user = (UserSpringSecurity) userService.loadUserByUsername(email);
-            if(!encoder.matches(password, user.getPassword())){
+            if (encoder.matches(password, user.getPassword())) {
                 throw new BadCredentialsException("invalid login details");
             }
-        }catch (UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             throw new BadCredentialsException("invalid login details");
         }
         return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());

@@ -1,36 +1,33 @@
 package com.example.viladafolha.events;
 
-import com.example.viladafolha.model.InhabitantRepo;
+import com.example.viladafolha.repos.InhabitantRepo;
 import com.example.viladafolha.model.Privilege;
 import com.example.viladafolha.model.Role;
 import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.repos.RoleRepo;
 import com.example.viladafolha.repos.PrivilegeRepo;
-import com.example.viladafolha.model.InhabitantRepo;
-import com.example.viladafolha.repos.PrivilegeRepo;
-import com.example.viladafolha.repos.RoleRepo;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Component
 public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
 
     private Boolean alreadySetup = false;
-    private InhabitantRepo inhabRepo;
-    private RoleRepo roleRepo;
-    private PrivilegeRepo privilegeRepo;
-    private PasswordEncoder passwordEncoder;
+    private final InhabitantRepo inhabRepo;
+    private final RoleRepo roleRepo;
+    private final PrivilegeRepo privilegeRepo;
 
-    public SetupData(InhabitantRepo inhabRepo, RoleRepo roleRepo, PrivilegeRepo privilegeRepo, PasswordEncoder passwordEncoder) {
+
+    public SetupData(InhabitantRepo inhabRepo, RoleRepo roleRepo, PrivilegeRepo privilegeRepo) {
         this.inhabRepo = inhabRepo;
         this.roleRepo = roleRepo;
         this.privilegeRepo = privilegeRepo;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -56,10 +53,58 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
         return role.get();
     }
 
+    private void createUserInhabitants() {
+        var userRole = roleRepo.findByName("ROLE_USER").orElseThrow();
+        Inhabitant inhabitant = new Inhabitant(
+                "alex",
+                "trom",
+                "12312312412312",
+                "alex@test.com",
+                "S1Lver@x",
+               LocalDate.of(1992, 4 , 1),
+                9999.0,
+                Set.of(userRole)
+        );
+        inhabRepo.save(inhabitant);
+        inhabitant = new Inhabitant(
+                "john",
+                "doe",
+                "12112312412312",
+                "jdoe@test.com",
+                "S1Lver@x",
+               LocalDate.of(1999, 4, 2),
+                1400.0,
+                Set.of(userRole)
+        );
+        inhabRepo.save(inhabitant);
+        inhabitant = new Inhabitant(
+                "herr",
+                "dior",
+                "12412312412312",
+                "herr@test.com",
+                "S1Lver@x",
+               LocalDate.of(1999, 2, 3),
+                200.0,
+                Set.of(userRole)
+        );
+        inhabRepo.save(inhabitant);
+        inhabitant = new Inhabitant(
+                "brol",
+                "potin",
+                "12312512412312",
+                "potin@test.com",
+                "S1Lver@x",
+               LocalDate.of(1991, 8, 4),
+                2200.0,
+                Set.of(userRole)
+        );
+        inhabRepo.save(inhabitant);
+    }
+
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (alreadySetup || inhabRepo.findByEmail("test@test.com").isEmpty()) {
+        if (alreadySetup) {
             return;
         }
 
@@ -81,11 +126,14 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "admin",
                 "12312312312312",
                 "admin@test.com",
-                "S1LvEr@x",
-                new Date(),
-                1400.0,
-                Set.of(adminRole));
+                "S1Lver@x",
+               LocalDate.of(2000, 8, 1),
+                10000000.0,
+                Set.of(adminRole)
+        );
         inhabRepo.save(inhabitant);
+        createUserInhabitants();
+
         alreadySetup = true;
     }
 }

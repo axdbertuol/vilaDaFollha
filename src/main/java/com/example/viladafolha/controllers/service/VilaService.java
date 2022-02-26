@@ -1,7 +1,7 @@
 package com.example.viladafolha.controllers.service;
 
 import com.example.viladafolha.model.Inhabitant;
-import com.example.viladafolha.model.InhabitantRepo;
+import com.example.viladafolha.repos.InhabitantRepo;
 import com.example.viladafolha.model.transport.InhabitantDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -8,7 +8,7 @@ import java.util.Collections;
 @Entity
 public class Privilege {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private String name;
     @ManyToMany(mappedBy = "privileges")

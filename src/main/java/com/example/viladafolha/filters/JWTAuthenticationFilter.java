@@ -1,5 +1,6 @@
 package com.example.viladafolha.filters;
 
+import com.example.viladafolha.model.UserSpringSecurity;
 import com.example.viladafolha.model.transport.CredentialsDTO;
 import com.example.viladafolha.model.transport.JwtDTO;
 import com.example.viladafolha.util.JWTUtil;
@@ -56,7 +57,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         Object principal = authResult.getPrincipal();
-        JwtDTO token = jwtUtil.generateToken((String) principal);
+        String email = ((UserSpringSecurity) principal).getUsername();
+        JwtDTO token = jwtUtil.generateToken(email);
 
         response.addHeader("Authorization", token.getFullToken());
         response.setStatus(200);

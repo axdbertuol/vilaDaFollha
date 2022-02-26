@@ -4,7 +4,7 @@ import com.example.viladafolha.model.Role;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -16,13 +16,13 @@ public class InhabitantDTO {
     private String cpf;
     private String email;
     private String password;
-    private Date birthday;
+    private LocalDate birthday;
     private Double balance;
     private Set<Role> roles;
 
 
     public InhabitantDTO(Long id, String name, String lastName, String cpf, String email,
-                      String password, Date birthday, Double balance, Set<Role> roles) {
+                      String password, LocalDate birthday, Double balance, Set<Role> roles) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;

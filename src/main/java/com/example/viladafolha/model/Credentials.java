@@ -1,10 +1,12 @@
 package com.example.viladafolha.model;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
 
 public class Credentials {
+    @Column(unique = true)
     private String email;
     private String password;
 
