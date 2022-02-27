@@ -21,22 +21,22 @@ public class VilaService {
         this.inhabitantRepo = inhabitantRepo;
     }
 
-    public List<InhabitantDTO> list(){
+    public List<InhabitantDTO> list() {
         return inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).toList();
     }
 
-    public Optional<Double> getVilaBudget() {
-        return Optional.of(Double.parseDouble(vilaBudget));
+    public Double getVilaBudget() {
+        return Double.parseDouble(vilaBudget);
     }
 
-    public Optional<Double> getTotalCost() {
+    public Double getTotalCost() {
         List<InhabitantDTO> list = inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).toList();
-        return list.stream().map(InhabitantDTO::getBalance).reduce(Double::sum);
+        return list.stream().map(InhabitantDTO::getBalance).reduce(Double::sum).orElse(0.0);
     }
 
 
     public Double getTotalBalance() {
-        return getVilaBudget().orElse(0.0) - getTotalCost().orElse(0.0);
+        return getVilaBudget() - getTotalCost();
     }
 
 }

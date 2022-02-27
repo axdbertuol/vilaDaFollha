@@ -14,18 +14,17 @@ import java.util.Optional;
 
 @Repository
 @Transactional
+
 public interface InhabitantRepo extends JpaRepository<Inhabitant, Long> {
 
     Optional<Inhabitant> findByEmail(String email);
-    List<InhabitantDTO> findAllByName(String name);
+    List<Inhabitant> findAllByName(String name);
 
-    @Query(value = "SELECT i.id, i.name, i.birthday FROM Inhabitant i WHERE function('month', i.birthday ) = :month")
+    @Query(value = "SELECT * FROM inhabitants i WHERE date_part('month', i.birthday) = :month", nativeQuery = true)
     List<Inhabitant> findAllByBirthdayMonth(@Param("month") int month);
 
-    @Query(value = "SELECT id, name, birthday FROM inhabitants WHERE extract(year from AGE(birthday)) >= :age", nativeQuery = true)
+    @Query(value = "SELECT * FROM inhabitants i WHERE extract(year from AGE(i.birthday)) >= :age", nativeQuery = true)
     List<Inhabitant> findAllByThatAgeOrOlder(@Param("age") int age);
-
-//    List<Inhabitant> findAllByBirthday_Month(Date month);
 
     @Modifying
     @Query("update Inhabitant inhab set inhab.password = :password where inhab.email = :email")

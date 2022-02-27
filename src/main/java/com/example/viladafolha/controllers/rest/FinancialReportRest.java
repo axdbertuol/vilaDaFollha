@@ -22,10 +22,10 @@ public class FinancialReportRest {
 
     @GetMapping()
     public FinancialReport getMostExpensiveInhabitant() {
-        Double totalCost = vilaService.getTotalCost().orElseThrow(RuntimeException::new);
-        Double budget = vilaService.getVilaBudget().orElseThrow(RuntimeException::new);
+        Double totalCost = vilaService.getTotalCost();
+        Double budget = vilaService.getVilaBudget();
         Double totalBalance = vilaService.getTotalBalance();
-        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant().orElseThrow(RuntimeException::new);
+        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant();
 
         return new FinancialReport(totalCost, budget, totalBalance, inhabitant);
 

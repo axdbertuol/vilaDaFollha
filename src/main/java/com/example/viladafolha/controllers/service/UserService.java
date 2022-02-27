@@ -34,7 +34,8 @@ public class UserService implements UserDetailsService {
     }
 
     public InhabitantDTO getInhabitant(String email) {
-        return inhabitantRepo.findByEmail(email).isPresent() ? inhabitantRepo.findByEmail(email).get().toDTO() : null;
+        Optional<Inhabitant> optional = inhabitantRepo.findByEmail(email);
+        return optional.map(Inhabitant::toDTO).orElse(null);
     }
 
 
@@ -43,7 +44,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<InhabitantDTO> getInhabitantByName(String name) {
-        return inhabitantRepo.findAllByName(name);
+        return inhabitantRepo.findAllByName(name).stream().map(Inhabitant::toDTO).toList();
     }
 
     public List<InhabitantDTO> getInhabitantByBirthdayMonth(String month) {
@@ -51,31 +52,36 @@ public class UserService implements UserDetailsService {
         return inhabitantRepo.findAllByBirthdayMonth(Integer.parseInt(month)).stream().map(Inhabitant::toDTO).toList();
     }
 
-    public Optional<InhabitantDTO> getMostExpensiveInhabitant() {
-        return inhabitantRepo.findAll().stream().map(Inhabitant::toDTO).max(Comparator.comparing(InhabitantDTO::getBalance));
+    public InhabitantDTO getMostExpensiveInhabitant() {
+        var list = inhabitantRepo.findAll().stream().max(Comparator.comparing(Inhabitant::getBalance));
+        return list.map(Inhabitant::toDTO).orElse(null);
     }
 
     public List<InhabitantDTO> getAllByThatAgeOrOlder(String age) {
         return inhabitantRepo.findAllByThatAgeOrOlder(Integer.parseInt(age)).stream().map(Inhabitant::toDTO).toList();
     }
 
-    public InhabitantDTO createInhabitant(InhabitantDTO inhab) {
-        if (getInhabitant(inhab.getEmail()) != null) {
+    public InhabitantDTO createInhabitant(InhabitantDTO inhabDTO) {
+        if (getInhabitant(inhabDTO.getEmail()) != null) {
             throw new RuntimeException("That email is already registered.");
         }
 
-        if (!inhab.getEmail().matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")) {
+        if (!inhabDTO.getEmail().matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")) {
             throw new RuntimeException("Invalid email.");
         }
-        if (!inhab.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+        if (!inhabDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
             throw new RuntimeException(
                     "Password must contain 8 characters:\n " +
                             "at least 1 uppercase letter;\n 1 lowercase letter;\n 1 special character;\n 1 number");
         }
 
         var userRole = roleRepo.findByName("ROLE_USER").orElseThrow();
-        inhab.setRoles(Set.of(userRole));
-        return inhabitantRepo.save(new Inhabitant(inhab)).toDTO();
+        inhabDTO.setRoles(Set.of(userRole));
+        inhabDTO.setPassword(encoder.encode(inhabDTO.getPassword()));
+
+        Inhabitant inhabitant = new Inhabitant(inhabDTO);
+        inhabitantRepo.save(inhabitant);
+        return inhabitant.toDTO();
     }
 
     @Override
@@ -88,8 +94,10 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void removeInhabitant(Long id) throws InhabitantNotFoundException {
-        inhabitantRepo.deleteById(id);
+    public void removeInhabitant(Long id) {
+        if(inhabitantRepo.findById(id).isPresent()){
+            inhabitantRepo.deleteById(id);
+        }
     }
 
     public Boolean sendNewPassword(String email) {

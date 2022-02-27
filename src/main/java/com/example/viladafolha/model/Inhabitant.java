@@ -36,7 +36,7 @@ public class Inhabitant {
         this.lastName = lastName;
         this.cpf = cpf;
         this.email = email;
-        this.password = new BCryptPasswordEncoder().encode(password);
+        this.password = password;
         this.birthday = birthday;
         this.balance = balance;
         this.roles = roles;

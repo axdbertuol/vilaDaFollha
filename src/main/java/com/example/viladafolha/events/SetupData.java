@@ -7,7 +7,9 @@ import com.example.viladafolha.model.Inhabitant;
 import com.example.viladafolha.repos.RoleRepo;
 import com.example.viladafolha.repos.PrivilegeRepo;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,17 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
     private final InhabitantRepo inhabRepo;
     private final RoleRepo roleRepo;
     private final PrivilegeRepo privilegeRepo;
+    private final PasswordEncoder encoder;
 
 
-    public SetupData(InhabitantRepo inhabRepo, RoleRepo roleRepo, PrivilegeRepo privilegeRepo) {
+    public SetupData(InhabitantRepo inhabRepo,
+                     RoleRepo roleRepo,
+                     PrivilegeRepo privilegeRepo,
+                     @Lazy PasswordEncoder encoder) {
         this.inhabRepo = inhabRepo;
         this.roleRepo = roleRepo;
         this.privilegeRepo = privilegeRepo;
+        this.encoder = encoder;
     }
 
 
@@ -60,8 +67,8 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "trom",
                 "12312312412312",
                 "alex@test.com",
-                "S1Lver@x",
-               LocalDate.of(1992, 4 , 1),
+                encoder.encode("S1Lver@x"),
+                LocalDate.of(1992, 4, 1),
                 9999.0,
                 Set.of(userRole)
         );
@@ -71,8 +78,8 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "doe",
                 "12112312412312",
                 "jdoe@test.com",
-                "S1Lver@x",
-               LocalDate.of(1999, 4, 2),
+                encoder.encode("S1Lver@x"),
+                LocalDate.of(1999, 4, 2),
                 1400.0,
                 Set.of(userRole)
         );
@@ -82,8 +89,8 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "dior",
                 "12412312412312",
                 "herr@test.com",
-                "S1Lver@x",
-               LocalDate.of(1999, 2, 3),
+                encoder.encode("S1Lver@x"),
+                LocalDate.of(1999, 2, 3),
                 200.0,
                 Set.of(userRole)
         );
@@ -93,8 +100,8 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "potin",
                 "12312512412312",
                 "potin@test.com",
-                "S1Lver@x",
-               LocalDate.of(1991, 8, 4),
+                encoder.encode("S1Lver@x"),
+                LocalDate.of(1991, 8, 4),
                 2200.0,
                 Set.of(userRole)
         );
@@ -126,9 +133,9 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "admin",
                 "12312312312312",
                 "admin@test.com",
-                "S1Lver@x",
-               LocalDate.of(2000, 8, 1),
-                10000000.0,
+                encoder.encode("S1Lver@x"),
+                LocalDate.of(2000, 8, 1),
+                100000.0,
                 Set.of(adminRole)
         );
         inhabRepo.save(inhabitant);
