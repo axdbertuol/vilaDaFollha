@@ -2,6 +2,7 @@ package com.viladafolha.controllers.service;
 
 import com.viladafolha.exceptions.InhabitantNotFoundException;
 import com.viladafolha.model.Inhabitant;
+import com.viladafolha.model.transport.MessageDTO;
 import com.viladafolha.repos.InhabitantRepo;
 import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.InhabitantDTO;
@@ -94,8 +95,10 @@ public class UserService implements UserDetailsService {
     }
 
 
+
+
     public void removeInhabitant(Long id) {
-        if(inhabitantRepo.findById(id).isPresent()){
+        if (inhabitantRepo.findById(id).isPresent()) {
             inhabitantRepo.deleteById(id);
         }
     }

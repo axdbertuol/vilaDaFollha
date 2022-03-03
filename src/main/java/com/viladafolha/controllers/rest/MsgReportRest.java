@@ -1,6 +1,8 @@
 package com.viladafolha.controllers.rest;
 
 
+import com.viladafolha.controllers.service.MessageQueryService;
+import com.viladafolha.controllers.service.UserService;
 import com.viladafolha.model.transport.MessageDTO;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.MediaType;
@@ -12,24 +14,20 @@ import org.springframework.web.bind.annotation.*;
 public class MsgReportRest {
 
 
-    private final RabbitTemplate queueSender;
+    private MessageQueryService messageQueryService;
 
-    public MsgReportRest(RabbitTemplate queueSender) {
-        this.queueSender = queueSender;
+    public MsgReportRest(MessageQueryService messageQueryService) {
+        this.messageQueryService = messageQueryService;
     }
-
 
     @PostMapping(path = "/send",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> send(@RequestBody MessageDTO messageDTO) {
-
-        switch (messageDTO.getType()){
-            case "PRINT" -> messageDTO.setTarget("com.print.viladafolha");
-            case "SYS_MSG" -> messageDTO.setTarget("com.sysmsg.viladafolha");
-        }
-        queueSender.convertAndSend("com.direct.viladafolha", messageDTO.getTarget(), messageDTO);
-        return ResponseEntity.ok("Message has been sent.");
+        var response = messageQueryService.processMessageQuery(messageDTO);
+        return !response ?
+                ResponseEntity.badRequest().body("Something went wrong.")
+                : ResponseEntity.ok("Message sent successfully to queue.");
     }
 
 

@@ -1,12 +1,12 @@
-package com.viladafolha.model.transport;
+package com.viladafolha.model;
 
 
-import com.viladafolha.model.Message;
+import com.viladafolha.model.transport.MessageDTO;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class MessageDTO implements Serializable {
+public class Message implements Serializable {
 
     private final long serial = 1L;
 
@@ -19,21 +19,24 @@ public class MessageDTO implements Serializable {
     private Integer retries;
     private LocalDateTime timestamp;
 
-    public MessageDTO() {
+    public Message() {
         this.timestamp = LocalDateTime.now();
         this.retries = 0;
     }
 
-
-    public MessageDTO(Message message) {
-        this.timestamp = message.getTimestamp();
-        this.target = message.getTarget();
-        this.retries = message.getRetries();
-        this.type = message.getType();
-        this.message = message.getMessage();
-        this.sender = message.getSender();
+    public Message(MessageDTO messageDTO) {
+        this.timestamp = messageDTO.getTimestamp() == null ? LocalDateTime.now() : messageDTO.getTimestamp();
+        this.retries = messageDTO.getRetries() == null ? 0 : messageDTO.getRetries();
+        this.target = messageDTO.getTarget();
+        this.type = messageDTO.getType();
+        this.message = messageDTO.getMessage();
+        this.sender = messageDTO.getSender();
     }
 
+
+    public void incrementRetry() {
+        retries++;
+    }
 
     public String getTarget() {
         return target;
@@ -43,6 +46,12 @@ public class MessageDTO implements Serializable {
         this.target = target;
     }
 
+    public boolean isValid() {
+        // TODO
+        // check if sender is valid
+        // check if message is valid
+        return true;
+    }
 
     public Integer getRetries() {
         return retries;
@@ -85,8 +94,12 @@ public class MessageDTO implements Serializable {
         this.type = type;
     }
 
-    public MessageDTO copy(MessageDTO messageDTO) {
-        return new MessageDTO();
+    public MessageDTO toDTO(MessageDTO messageDTO) {
+        return new MessageDTO(this);
+    }
+
+    public Message copy(Message message) {
+        return new Message();
     }
 
     @Override
