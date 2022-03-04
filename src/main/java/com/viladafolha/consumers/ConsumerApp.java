@@ -1,22 +1,34 @@
 package com.viladafolha.consumers;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.lowagie.text.DocumentException;
 import com.viladafolha.model.Message;
 import com.viladafolha.model.transport.MessageDTO;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.xhtmlrenderer.layout.SharedContext;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class ConsumerApp {
+    private static final String HTML_INPUT = "src/main/resources/templates/FinancialReport.html";
+    private static final String PDF_OUTPUT = "src/main/resources/FinancialReport.pdf";
     private final int MAX_RETRIES = 3;
 
     private final Map<String, String> typesToNameQueueMap = new HashMap<>();
     private final RabbitTemplate queueSender;
     private final String exchangeName;
+
 
     public ConsumerApp(
             RabbitTemplate queueSender,
@@ -46,7 +58,7 @@ public class ConsumerApp {
     private void receive(MessageDTO in, String type) {
         Message messageModel = new Message(in);
         messageModel.incrementRetry();
-        System.out.println("passei");
+
         String queue = "";
 
         try {
@@ -61,33 +73,70 @@ public class ConsumerApp {
             return;
         }
 
-        if (messageModel.getRetries() >= MAX_RETRIES) {
-            // TODO send to email
-            System.out.println("Max retries reached. Sent to email instead.");
-            return;
-        }
-
 
         switch (type) {
             case "PRINT_SYSMSG" -> {
+                System.out.println("---------------------------------------------");
                 System.out.println("NEW AMQP MESSAGE FROM: " + messageModel.getSender());
                 System.out.println("---------------------------------------------");
                 System.out.println(messageModel.getMessage());
                 System.out.println("---------------------------------------------");
+                System.out.println("---------------------------------------------");
 
             }
             case "GENERATE_PDF" -> {
-                // TODO print report
+                if (messageModel.getRetries() >= MAX_RETRIES) {
+                    // TODO send pdf to email
+                    System.out.println("Max retries reached. Sent to email instead.");
+                    return;
+                }
+                try {
+                    File inputHTML = new File(HTML_INPUT);
+                    Document html = createWellFormedHtml(inputHTML, messageModel);
+                    File outputPdf = new File(PDF_OUTPUT);
+                    xhtmlToPdf(html, outputPdf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
             default -> {
-                // in case there's no available type send back to queue
-
+                // in case there's no type
                 // serialize again
                 in = new MessageDTO(messageModel);
-                //send back to queue
+                // send back to queue
                 queueSender.convertAndSend(exchangeName, queue, in);
             }
         }
+    }
+
+    private void xhtmlToPdf(Document inputHtml, File outputPdf) {
+        try (OutputStream outputStream = new FileOutputStream(outputPdf)) {
+            ITextRenderer renderer = new ITextRenderer();
+            SharedContext sharedContext = renderer.getSharedContext();
+            sharedContext.setPrint(true);
+            sharedContext.setInteractive(false);
+            renderer.setDocumentFromString(inputHtml.html());
+            renderer.layout();
+            renderer.createPDF(outputStream);
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Document createWellFormedHtml(File inputHTML, Message messageModel) throws IOException {
+        Document document = Jsoup.parse(inputHTML, "UTF-8");
+
+        JsonObject json = (JsonObject) JsonParser.parseString(messageModel.getMessage());
+        document.getElementById("total-balance-value").text(String.valueOf(json.get("total_balance")));
+        document.getElementById("total-cost-value").text(String.valueOf(json.get("total_cost")));
+        document.getElementById("budget-value").text(String.valueOf(json.get("budget")));
+        document.getElementById("most-exp-value").text(String.valueOf(json.get("most_exp_inhabitant_id")));
+
+        document.outputSettings()
+                .syntax(Document.OutputSettings.Syntax.xml);
+
+        return document;
     }
 
 

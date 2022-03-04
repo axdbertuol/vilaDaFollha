@@ -1,5 +1,6 @@
 package com.viladafolha.controllers.service;
 
+import com.google.gson.JsonObject;
 import com.viladafolha.model.Message;
 import com.viladafolha.model.transport.MessageDTO;
 import org.springframework.amqp.AmqpException;
@@ -15,6 +16,7 @@ public class MessageQueryService {
 
     private final RabbitTemplate queueSender;
     private final Map<String, String> typesToNameQueueMap = new HashMap<>();
+    private final VilaService vilaService;
     private final String exchangeName;
 
 
@@ -22,10 +24,11 @@ public class MessageQueryService {
             RabbitTemplate queueSender,
             @Value("${queue.name.1}") String queueName1,
             @Value("${queue.name.2}") String queueName2,
-            @Value("${exchange.name}") String exchangeName
+            VilaService vilaService, @Value("${exchange.name}") String exchangeName
 
     ) {
         this.queueSender = queueSender;
+        this.vilaService = vilaService;
         this.exchangeName = exchangeName;
         typesToNameQueueMap.put("PRINT_SYSMSG", queueName1);
         typesToNameQueueMap.put("GENERATE_PDF", queueName2);
@@ -44,14 +47,11 @@ public class MessageQueryService {
             case "GENERATE_PDF" -> {
                 var routingKey = typesToNameQueueMap.get("GENERATE_PDF");
                 messageModel.setTarget(routingKey);
+                var financialReport = vilaService.getFinancialReport();
+                messageModel.setMessage(financialReport.toJSON().toString());
                 MessageDTO newMessage = new MessageDTO(messageModel);
                 try {
-
-                    queueSender.convertAndSend(
-                            exchangeName,
-                            routingKey,
-                            newMessage
-                    );
+                    queueSender.convertAndSend(exchangeName, routingKey, newMessage);
                 } catch (AmqpException e) {
                     System.err.println(e.getMessage());
                     e.printStackTrace();
@@ -62,11 +62,7 @@ public class MessageQueryService {
                 var routingKey = typesToNameQueueMap.get("PRINT_SYSMSG");
                 messageModel.setTarget(routingKey);
                 MessageDTO newMessage = new MessageDTO(messageModel);
-                queueSender.convertAndSend(
-                        exchangeName,
-                        routingKey,
-                        newMessage
-                );
+                queueSender.convertAndSend(exchangeName, routingKey, newMessage);
                 response = true;
             }
         }

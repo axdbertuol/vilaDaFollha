@@ -1,5 +1,6 @@
 package com.viladafolha.controllers.service;
 
+import com.viladafolha.model.FinancialReport;
 import com.viladafolha.model.Inhabitant;
 import com.viladafolha.repos.InhabitantRepo;
 import com.viladafolha.model.transport.InhabitantDTO;
@@ -15,9 +16,11 @@ public class VilaService {
 
 
     private final InhabitantRepo inhabitantRepo;
+    private UserService userService;
 
-    public VilaService(InhabitantRepo inhabitantRepo) {
+    public VilaService(InhabitantRepo inhabitantRepo, UserService userService) {
         this.inhabitantRepo = inhabitantRepo;
+        this.userService = userService;
     }
 
     public List<InhabitantDTO> list() {
@@ -36,6 +39,14 @@ public class VilaService {
 
     public Double getTotalBalance() {
         return getVilaBudget() - getTotalCost();
+    }
+
+    public FinancialReport getFinancialReport() {
+        Double totalCost = getTotalCost();
+        Double budget = getVilaBudget();
+        Double totalBalance = getTotalBalance();
+        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant();
+        return new FinancialReport(totalCost, budget, totalBalance, inhabitant);
     }
 
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Financial Report</title>
+    <style>
+        .center_div {
+            border: 1px solid gray;
+            margin-left: auto;
+            margin-right: auto;
+            width: 90%;
+            /*background-color: #d0f0f6;*/
+            text-align: left;
+            padding: 8px;
+        }
+        .col-first{
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="center_div">
+    <table>
+        <thead>
+        <tr>
+            <th>Dezembro</th>
+        </tr>
+        </thead>
+        <tr id="tr-total-balance">
+            <td class="col-first">Total Balance</td>
+            <td id="total-balance-value"></td>
+        </tr>
+        <tr id="tr-total-cost">
+            <td class="col-first">Total Cost</td>
+            <td id="total-cost-value"></td>
+        </tr>
+        <tr id="tr-budget">
+            <td class="col-first">Budget</td>
+            <td id="budget-value"></td>
+        </tr>
+        <tr id="tr-most-exp">
+            <td class="col-first">Most Expensive Inhabitant ID</td>
+            <td id="most-exp-value"></td>
+        </tr>
+    </table>
+</div>
+
+
+</body>
+</html>

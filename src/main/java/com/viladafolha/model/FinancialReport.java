@@ -1,5 +1,6 @@
 package com.viladafolha.model;
 
+import com.google.gson.JsonObject;
 import com.viladafolha.model.transport.InhabitantDTO;
 import lombok.Data;
 
@@ -16,6 +17,15 @@ public class FinancialReport {
         this.budget = budget;
         this.totalBalance = totalBalance;
         this.mostExpensiveInhabitant = mostExpensiveInhabitant;
+    }
+
+    public JsonObject toJSON() {
+        JsonObject json = new JsonObject();
+        json.addProperty("total_balance", getTotalBalance());
+        json.addProperty("total_cost", getTotalCost());
+        json.addProperty("budget", getBudget());
+        json.addProperty("most_exp_inhabitant_id", getMostExpensiveInhabitant().getId());
+        return json;
     }
 
 }
