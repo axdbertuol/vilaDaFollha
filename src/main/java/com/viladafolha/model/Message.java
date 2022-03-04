@@ -5,6 +5,7 @@ import com.viladafolha.model.transport.MessageDTO;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Message implements Serializable {
 
@@ -16,6 +17,7 @@ public class Message implements Serializable {
     private String target;
     private String type;
     private String message;
+
     private Integer retries;
     private LocalDateTime timestamp;
 

@@ -1,6 +1,5 @@
 package com.viladafolha.consumers;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lowagie.text.DocumentException;
@@ -15,7 +14,10 @@ import org.springframework.stereotype.Component;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,6 +96,12 @@ public class ConsumerApp {
                     File inputHTML = new File(HTML_INPUT);
                     Document html = createWellFormedHtml(inputHTML, messageModel);
                     File outputPdf = new File(PDF_OUTPUT);
+                    int n = 1;
+                    while(outputPdf.exists()){
+                        var newName = PDF_OUTPUT.replaceFirst(".pdf", "(" + n + ").pdf");;
+                        outputPdf = new File(newName);
+                        n++;
+                    }
                     xhtmlToPdf(html, outputPdf);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -132,7 +140,8 @@ public class ConsumerApp {
         document.getElementById("total-cost-value").text(String.valueOf(json.get("total_cost")));
         document.getElementById("budget-value").text(String.valueOf(json.get("budget")));
         document.getElementById("most-exp-value").text(String.valueOf(json.get("most_exp_inhabitant_id")));
-
+        document.getElementById("sender").text(messageModel.getSender());
+        document.getElementById("target").text(messageModel.getTarget());
         document.outputSettings()
                 .syntax(Document.OutputSettings.Syntax.xml);
 

@@ -8,13 +8,18 @@
             border: 1px solid gray;
             margin-left: auto;
             margin-right: auto;
-            width: 90%;
             /*background-color: #d0f0f6;*/
             text-align: left;
             padding: 8px;
         }
-        .col-first{
-            font-weight: bold;
+
+        .col-first {
+            font-style: italic;
+        }
+
+        .table-header {
+            font-size: 16px;
+
         }
 
     </style>
@@ -22,29 +27,43 @@
 <body>
 
 <div class="center_div">
+    <h3>Relatório Financeiro</h3>
     <table>
         <thead>
         <tr>
-            <th>Dezembro</th>
+            <th class="table-header">Dezembro</th>
         </tr>
         </thead>
         <tr id="tr-total-balance">
-            <td class="col-first">Total Balance</td>
+            <th class="col-first">Saldo Total</th>
             <td id="total-balance-value"></td>
         </tr>
         <tr id="tr-total-cost">
-            <td class="col-first">Total Cost</td>
+            <th class="col-first">Custo Total</th>
             <td id="total-cost-value"></td>
         </tr>
         <tr id="tr-budget">
-            <td class="col-first">Budget</td>
+            <th class="col-first">Orçamento</th>
             <td id="budget-value"></td>
         </tr>
         <tr id="tr-most-exp">
-            <td class="col-first">Most Expensive Inhabitant ID</td>
+            <th class="col-first">Habitante mais caro</th>
             <td id="most-exp-value"></td>
         </tr>
     </table>
+</div>
+<hr/>
+<table>
+    <tr>
+        <th>Sent by</th>
+        <td id="sender"></td>
+    </tr>
+    <tr>
+        <th>From queue</th>
+        <td id="target"></td>
+    </tr>
+
+</table>
 </div>
 
 
