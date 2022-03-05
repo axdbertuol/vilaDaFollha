@@ -26,10 +26,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceUnitTest {
+class InhabitantServiceUnitTest {
 
     @InjectMocks
-    UserService userService;
+    InhabitantService inhabitantService;
     @Mock
     InhabitantRepo inhabitantRepo;
     @Mock
@@ -73,7 +73,7 @@ class UserServiceUnitTest {
         when(roleRepo.findByName(anyString())).thenReturn(Optional.of(userRole));
 
         // WHEN
-        userService.createInhabitant(inhabitantDTO);
+        inhabitantService.createInhabitant(inhabitantDTO);
 
         // THEN
         verify(inhabitantRepo).save(inhabitant[0]);
@@ -86,7 +86,7 @@ class UserServiceUnitTest {
         // GIVEN
         when(inhabitantRepo.findById(1L)).thenReturn(Optional.of(new Inhabitant()));
         // WHEN
-        userService.removeInhabitant(1L);
+        inhabitantService.removeInhabitant(1L);
         // THEN
         verify(inhabitantRepo).deleteById(1L);
     }
@@ -98,7 +98,7 @@ class UserServiceUnitTest {
         when(inhabitantRepo.findByEmail(anyString())).thenReturn(Optional.of(new Inhabitant()));
 
         // WHEN
-        userService.getInhabitant("test@test.com");
+        inhabitantService.getInhabitant("test@test.com");
 
         // THEN
         verify(inhabitantRepo).findByEmail("test@test.com");
@@ -119,7 +119,7 @@ class UserServiceUnitTest {
         when(inhabitantRepo.findAll()).thenReturn(List.of(inhab1, inhab2, inhab3));
 
         // THEN
-        var result = userService.getMostExpensiveInhabitant();
+        var result = inhabitantService.getMostExpensiveInhabitant();
 
         // THEN
         verify(inhabitantRepo).findAll();

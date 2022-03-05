@@ -1,7 +1,7 @@
 package com.viladafolha.controllers.rest;
 
 
-import com.viladafolha.controllers.service.UserService;
+import com.viladafolha.controllers.service.InhabitantService;
 import com.viladafolha.controllers.service.VilaService;
 import com.viladafolha.exceptions.InhabitantNotFoundException;
 
@@ -22,11 +22,11 @@ import java.util.List;
 public class InhabitantRest {
 
     private final VilaService vilaService;
-    private final UserService userService;
+    private final InhabitantService inhabitantService;
 
-    public InhabitantRest(VilaService vilaService, UserService userService) {
+    public InhabitantRest(VilaService vilaService, InhabitantService inhabitantService) {
         this.vilaService = vilaService;
-        this.userService = userService;
+        this.inhabitantService = inhabitantService;
     }
 
     @GetMapping("/list")
@@ -38,7 +38,7 @@ public class InhabitantRest {
     @GetMapping("/{id}")
     public String getInhabitant(@PathVariable(value = "id") String id) throws InhabitantNotFoundException {
         JsonObject response = new JsonObject();
-        InhabitantDTO inhabitantDTO = userService.getInhabitant(Long.parseLong(id));
+        InhabitantDTO inhabitantDTO = inhabitantService.getInhabitant(Long.parseLong(id));
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
         response.addProperty("name", inhabitantDTO.getName());
         response.addProperty("cpf", inhabitantDTO.getCpf());
@@ -52,19 +52,19 @@ public class InhabitantRest {
 
     @GetMapping("/byName={name}")
     public String getInhabitantsByName(@PathVariable(value = "name") String name) {
-        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByName(name);
+        List<InhabitantDTO> inhabitantDTOList = inhabitantService.getInhabitantByName(name);
         return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/byAge={age}")
     public String getInhabitantsByThatAgeOrOlder(@PathVariable(value = "age") String age) {
-        List<InhabitantDTO> inhabitantDTOList = userService.getAllByThatAgeOrOlder(age);
+        List<InhabitantDTO> inhabitantDTOList = inhabitantService.getAllByThatAgeOrOlder(age);
         return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
     @GetMapping("/byMonth={month}")
     public String getInhabitantsByBirthdayMonth(@PathVariable(value = "month") String month) {
-        List<InhabitantDTO> inhabitantDTOList = userService.getInhabitantByBirthdayMonth(month);
+        List<InhabitantDTO> inhabitantDTOList = inhabitantService.getInhabitantByBirthdayMonth(month);
         return JsonResponse.returnNamesAndIds(inhabitantDTOList).toString();
     }
 
@@ -75,7 +75,7 @@ public class InhabitantRest {
     )
     public String createInhabitant(@RequestBody InhabitantDTO inhab) {
 
-        InhabitantDTO inhabitantDto = userService.createInhabitant(inhab);
+        InhabitantDTO inhabitantDto = inhabitantService.createInhabitant(inhab);
 
         JsonObject response = new JsonObject();
         response.addProperty("http_status", String.valueOf(HttpStatus.ACCEPTED));
@@ -89,7 +89,7 @@ public class InhabitantRest {
     public String removeInhabitant(@PathVariable Long id) throws InhabitantNotFoundException {
 
         JsonObject response = new JsonObject();
-        userService.removeInhabitant(id);
+        inhabitantService.removeInhabitant(id);
 
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
         response.addProperty("msg", "Inhabitant with id " + id + " deleted from DB.");
@@ -102,7 +102,7 @@ public class InhabitantRest {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String forgot(@RequestBody MailDTO mail) {
 
-        userService.sendNewPassword(mail.getEmail());
+        inhabitantService.sendNewPassword(mail.getEmail());
         return "New password was sent to your email";
     }
 

@@ -16,11 +16,11 @@ public class VilaService {
 
 
     private final InhabitantRepo inhabitantRepo;
-    private UserService userService;
+    private InhabitantService inhabitantService;
 
-    public VilaService(InhabitantRepo inhabitantRepo, UserService userService) {
+    public VilaService(InhabitantRepo inhabitantRepo, InhabitantService inhabitantService) {
         this.inhabitantRepo = inhabitantRepo;
-        this.userService = userService;
+        this.inhabitantService = inhabitantService;
     }
 
     public List<InhabitantDTO> list() {
@@ -45,7 +45,7 @@ public class VilaService {
         Double totalCost = getTotalCost();
         Double budget = getVilaBudget();
         Double totalBalance = getTotalBalance();
-        InhabitantDTO inhabitant = userService.getMostExpensiveInhabitant();
+        InhabitantDTO inhabitant = inhabitantService.getMostExpensiveInhabitant();
         return new FinancialReport(totalCost, budget, totalBalance, inhabitant);
     }
 

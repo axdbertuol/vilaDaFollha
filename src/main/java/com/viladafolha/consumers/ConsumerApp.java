@@ -34,14 +34,14 @@ public class ConsumerApp {
 
     public ConsumerApp(
             RabbitTemplate queueSender,
+            @Value("${exchange.name}") String exchangeName,
             @Value("${queue.name.1}") String queueName1,
-            @Value("${queue.name.2}") String queueName2,
-            @Value("${exchange.name}") String exchangeName
+            @Value("${queue.name.2}") String queueName2
     ) {
         this.queueSender = queueSender;
+        this.exchangeName = exchangeName;
         typesToNameQueueMap.put("PRINT_SYSMSG", queueName1);
         typesToNameQueueMap.put("GENERATE_PDF", queueName2);
-        this.exchangeName = exchangeName;
 
 
     }
@@ -94,12 +94,11 @@ public class ConsumerApp {
                 }
                 try {
                     File inputHTML = new File(HTML_INPUT);
-                    Document html = createWellFormedHtml(inputHTML, messageModel);
+                    Document html = mapHtmlIdsToValues(inputHTML, messageModel);
                     File outputPdf = new File(PDF_OUTPUT);
                     int n = 1;
-                    while(outputPdf.exists()){
-                        var newName = PDF_OUTPUT.replaceFirst(".pdf", "(" + n + ").pdf");;
-                        outputPdf = new File(newName);
+                    while (outputPdf.exists()) {
+                        outputPdf = new File(PDF_OUTPUT.replaceFirst(".pdf", "(" + n + ").pdf"));
                         n++;
                     }
                     xhtmlToPdf(html, outputPdf);
@@ -132,7 +131,7 @@ public class ConsumerApp {
         }
     }
 
-    private Document createWellFormedHtml(File inputHTML, Message messageModel) throws IOException {
+    private Document mapHtmlIdsToValues(File inputHTML, Message messageModel) throws IOException {
         Document document = Jsoup.parse(inputHTML, "UTF-8");
 
         JsonObject json = (JsonObject) JsonParser.parseString(messageModel.getMessage());

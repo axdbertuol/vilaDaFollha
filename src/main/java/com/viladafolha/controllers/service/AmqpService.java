@@ -1,6 +1,5 @@
 package com.viladafolha.controllers.service;
 
-import com.google.gson.JsonObject;
 import com.viladafolha.model.Message;
 import com.viladafolha.model.transport.MessageDTO;
 import org.springframework.amqp.AmqpException;
@@ -12,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class MessageQueryService {
+public class AmqpService {
 
     private final RabbitTemplate queueSender;
     private final Map<String, String> typesToNameQueueMap = new HashMap<>();
@@ -20,7 +19,7 @@ public class MessageQueryService {
     private final String exchangeName;
 
 
-    public MessageQueryService(
+    public AmqpService(
             RabbitTemplate queueSender,
             @Value("${queue.name.1}") String queueName1,
             @Value("${queue.name.2}") String queueName2,

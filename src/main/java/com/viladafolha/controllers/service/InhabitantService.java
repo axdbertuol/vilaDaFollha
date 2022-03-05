@@ -2,7 +2,6 @@ package com.viladafolha.controllers.service;
 
 import com.viladafolha.exceptions.InhabitantNotFoundException;
 import com.viladafolha.model.Inhabitant;
-import com.viladafolha.model.transport.MessageDTO;
 import com.viladafolha.repos.InhabitantRepo;
 import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.InhabitantDTO;
@@ -21,14 +20,14 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class UserService implements UserDetailsService {
+public class InhabitantService implements UserDetailsService {
     private final InhabitantRepo inhabitantRepo;
     private final JavaMailSender mailSender;
     private final PasswordEncoder encoder;
     private final RoleRepo roleRepo;
 
 
-    public UserService(InhabitantRepo inhabitantRepo, JavaMailSender mailSender, @Lazy PasswordEncoder encoder, RoleRepo roleRepo) {
+    public InhabitantService(InhabitantRepo inhabitantRepo, JavaMailSender mailSender, @Lazy PasswordEncoder encoder, RoleRepo roleRepo) {
         this.inhabitantRepo = inhabitantRepo;
         this.mailSender = mailSender;
         this.encoder = encoder;

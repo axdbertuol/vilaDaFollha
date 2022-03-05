@@ -1,6 +1,6 @@
 package com.viladafolha.filters;
 
-import com.viladafolha.controllers.service.UserService;
+import com.viladafolha.controllers.service.InhabitantService;
 import com.viladafolha.model.UserSpringSecurity;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserService userService;
+    private final InhabitantService inhabitantService;
     private PasswordEncoder encoder;
 
-    public CustomAuthenticationProvider(UserService userService) {
-        this.userService = userService;
-        encoder = userService.getEncoder();
+    public CustomAuthenticationProvider(InhabitantService inhabitantService) {
+        this.inhabitantService = inhabitantService;
+        encoder = inhabitantService.getEncoder();
     }
 
 
@@ -29,7 +29,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = (String) authentication.getCredentials();
         UserSpringSecurity user;
         try {
-            user = (UserSpringSecurity) userService.loadUserByUsername(email);
+            user = (UserSpringSecurity) inhabitantService.loadUserByUsername(email);
             if (encoder.matches(password, user.getPassword())) {
                 throw new BadCredentialsException("invalid login details");
             }

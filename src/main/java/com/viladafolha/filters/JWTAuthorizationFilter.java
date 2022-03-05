@@ -1,6 +1,6 @@
 package com.viladafolha.filters;
 
-import com.viladafolha.controllers.service.UserService;
+import com.viladafolha.controllers.service.InhabitantService;
 import com.viladafolha.util.JWTUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,13 +17,13 @@ import java.io.IOException;
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private final JWTUtil jwtUtil;
-	private final UserService userService;
+	private final InhabitantService inhabitantService;
 
 	public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-                                  UserService userService) {
+                                  InhabitantService inhabitantService) {
 		super(authenticationManager);
 		this.jwtUtil = jwtUtil;
-		this.userService = userService;
+		this.inhabitantService = inhabitantService;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(String token) {
 		if (jwtUtil.validateToken(token)) {
 			String email = jwtUtil.getEmailByToken(token);
-			UserDetails user = userService.loadUserByUsername(email);
+			UserDetails user = inhabitantService.loadUserByUsername(email);
 			return new UsernamePasswordAuthenticationToken(
 					user.getUsername(), null, user.getAuthorities());
 		}

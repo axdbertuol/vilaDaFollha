@@ -1,6 +1,6 @@
 package com.viladafolha.config;
 
-import com.viladafolha.controllers.service.UserService;
+import com.viladafolha.controllers.service.InhabitantService;
 import com.viladafolha.filters.CustomAuthenticationProvider;
 import com.viladafolha.filters.JWTAuthenticationFilter;
 import com.viladafolha.filters.JWTAuthorizationFilter;
@@ -30,11 +30,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
 
     private final JWTUtil jwtUtil;
     private final CustomAuthenticationProvider authenticationProvider;
-    private UserService userService;
+    private InhabitantService inhabitantService;
 
 
-    public WebSecurityConfig(UserService userService, JWTUtil jwtUtil, CustomAuthenticationProvider authenticationProvider) {
-        this.userService = userService;
+    public WebSecurityConfig(InhabitantService inhabitantService, JWTUtil jwtUtil, CustomAuthenticationProvider authenticationProvider) {
+        this.inhabitantService = inhabitantService;
         this.jwtUtil = jwtUtil;
         this.authenticationProvider = authenticationProvider;
     }
@@ -43,7 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService).passwordEncoder(getPasswordEncoder());
+        auth.userDetailsService(inhabitantService).passwordEncoder(getPasswordEncoder());
         auth.authenticationProvider(authenticationProvider);
     }
 
@@ -61,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                 .addFilter(
                         new JWTAuthenticationFilter(authenticationManager(), jwtUtil)
                 ).addFilterAfter(
-                        new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userService),
+                        new JWTAuthorizationFilter(authenticationManager(), jwtUtil, inhabitantService),
                         JWTAuthenticationFilter.class
                 );
 
