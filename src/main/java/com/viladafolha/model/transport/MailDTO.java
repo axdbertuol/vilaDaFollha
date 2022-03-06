@@ -1,21 +1,18 @@
 package com.viladafolha.model.transport;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.File;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Map;
 
-public class MailDTO implements Serializable {
-
-	@Serial
-	private static final long serialVersionUID = 1L;
-
-	private String email;
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
+@Getter
+@Setter
+public class MailDTO {
+    private String from;
+    private String to;
+    private String subject;
+    private String text = "";
 }

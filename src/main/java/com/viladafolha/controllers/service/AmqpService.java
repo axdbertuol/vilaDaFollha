@@ -23,7 +23,8 @@ public class AmqpService {
             RabbitTemplate queueSender,
             @Value("${queue.name.1}") String queueName1,
             @Value("${queue.name.2}") String queueName2,
-            VilaService vilaService, @Value("${exchange.name}") String exchangeName
+            VilaService vilaService,
+            @Value("${exchange.name}") String exchangeName
 
     ) {
         this.queueSender = queueSender;
@@ -40,6 +41,7 @@ public class AmqpService {
 
         // create model Message
         var messageModel = new Message(messageDTO);
+        // TODO get credentials from system to set sender as the email from the logged in inhabitant
 
         var response = false;
         switch (messageModel.getType()) {

@@ -49,10 +49,7 @@ public class Message implements Serializable {
     }
 
     public boolean isValid() {
-        // TODO
-        // check if sender is valid
-        // check if message is valid
-        return true;
+        return !this.message.matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}");
     }
 
     public Integer getRetries() {

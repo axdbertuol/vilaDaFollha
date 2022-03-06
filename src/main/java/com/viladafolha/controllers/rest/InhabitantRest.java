@@ -86,7 +86,7 @@ public class InhabitantRest {
     }
 
     @DeleteMapping(value = "/remove/{id}")
-    public String removeInhabitant(@PathVariable Long id) throws InhabitantNotFoundException {
+    public String removeInhabitant(@PathVariable Long id)  {
 
         JsonObject response = new JsonObject();
         inhabitantService.removeInhabitant(id);
@@ -102,7 +102,7 @@ public class InhabitantRest {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String forgot(@RequestBody MailDTO mail) {
 
-        inhabitantService.sendNewPassword(mail.getEmail());
+        inhabitantService.sendNewPassword(mail.getTo());
         return "New password was sent to your email";
     }
 

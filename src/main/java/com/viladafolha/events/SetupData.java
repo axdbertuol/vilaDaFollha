@@ -6,6 +6,7 @@ import com.viladafolha.model.Role;
 import com.viladafolha.model.Inhabitant;
 import com.viladafolha.repos.RoleRepo;
 import com.viladafolha.repos.PrivilegeRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -24,16 +25,19 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
     private final RoleRepo roleRepo;
     private final PrivilegeRepo privilegeRepo;
     private final PasswordEncoder encoder;
+    private final String sourceEmail;
 
 
     public SetupData(InhabitantRepo inhabRepo,
                      RoleRepo roleRepo,
                      PrivilegeRepo privilegeRepo,
-                     @Lazy PasswordEncoder encoder) {
+                     @Lazy PasswordEncoder encoder,
+                     @Value("${aws.verified.email}") String sourceEmail) {
         this.inhabRepo = inhabRepo;
         this.roleRepo = roleRepo;
         this.privilegeRepo = privilegeRepo;
         this.encoder = encoder;
+        this.sourceEmail = sourceEmail;
     }
 
 
@@ -131,7 +135,7 @@ public class SetupData implements ApplicationListener<ContextRefreshedEvent> {
                 "admin",
                 "admin",
                 "12312312312312",
-                "admin@test.com",
+                sourceEmail,
                 encoder.encode("S1Lver@x"),
                 LocalDate.of(2000, 8, 1),
                 100000.0,
