@@ -2,19 +2,15 @@ package com.viladafolha.controllers.service;
 
 import com.viladafolha.exceptions.InhabitantNotFoundException;
 import com.viladafolha.model.Inhabitant;
-import com.viladafolha.model.transport.MailDTO;
-import com.viladafolha.repos.InhabitantRepo;
 import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.InhabitantDTO;
+import com.viladafolha.model.transport.MailDTO;
+import com.viladafolha.repos.InhabitantRepo;
 import com.viladafolha.repos.RoleRepo;
 import com.viladafolha.util.PasswordGenerator;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +21,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class InhabitantService implements UserDetailsService {
@@ -57,7 +56,6 @@ public class InhabitantService implements UserDetailsService {
     }
 
     public List<InhabitantDTO> getInhabitantByBirthdayMonth(String month) {
-//        Date date = Date.from(Instant.from(LocalDate.of(2000, Integer.parseInt(month), 1)));
         return inhabitantRepo.findAllByBirthdayMonth(Integer.parseInt(month)).stream().map(Inhabitant::toDTO).toList();
     }
 

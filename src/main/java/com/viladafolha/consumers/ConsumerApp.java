@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lowagie.text.DocumentException;
 import com.viladafolha.controllers.service.EmailService;
-import com.viladafolha.enums.MessageType;
 import com.viladafolha.model.Message;
 import com.viladafolha.model.transport.MailDTO;
 import com.viladafolha.model.transport.MessageDTO;
@@ -110,7 +109,7 @@ public class ConsumerApp {
                         mailDTO.setFrom(sourceEmail);
                         mailDTO.setTo(messageModel.getSender());
                         mailDTO.setText(html.html());
-                        mailDTO.setSubject("You have reached max retries to a pdf request.");
+                        mailDTO.setSubject("You have reached max retries for a pdf report request.");
 
                         emailService.sendEmail(mailDTO);
                         return;

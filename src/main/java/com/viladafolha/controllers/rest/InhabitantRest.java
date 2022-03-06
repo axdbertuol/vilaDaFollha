@@ -106,8 +106,6 @@ public class InhabitantRest {
 
         inhabitantService.sendNewPassword();
         return "New password was sent to your email";
-
-
     }
 
 }

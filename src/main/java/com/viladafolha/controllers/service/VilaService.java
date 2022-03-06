@@ -11,14 +11,17 @@ import java.util.List;
 
 @Service
 public class VilaService {
-    @Value("${app.vilaBudget}")
     private String vilaBudget;
 
 
     private final InhabitantRepo inhabitantRepo;
-    private InhabitantService inhabitantService;
+    private final InhabitantService inhabitantService;
 
-    public VilaService(InhabitantRepo inhabitantRepo, InhabitantService inhabitantService) {
+    public VilaService(
+            @Value("${app.vilaBudget}") String vilaBudget,
+            InhabitantRepo inhabitantRepo,
+            InhabitantService inhabitantService) {
+        this.vilaBudget = vilaBudget;
         this.inhabitantRepo = inhabitantRepo;
         this.inhabitantService = inhabitantService;
     }

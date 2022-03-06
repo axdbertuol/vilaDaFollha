@@ -18,6 +18,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +63,7 @@ class InhabitantServiceUnitTest {
             long sequence = 1;
 
             @Override
-            public Inhabitant answer(InvocationOnMock invocationOnMock) throws Throwable {
+            public Inhabitant answer(InvocationOnMock invocationOnMock) {
                 inhabitant[0] = invocationOnMock.getArgument(0);
                 inhabitant[0].setId(sequence++);
                 return inhabitant[0];
@@ -118,7 +119,7 @@ class InhabitantServiceUnitTest {
 
         when(inhabitantRepo.findAll()).thenReturn(List.of(inhab1, inhab2, inhab3));
 
-        // THEN
+        // WHEN
         var result = inhabitantService.getMostExpensiveInhabitant();
 
         // THEN
@@ -127,4 +128,27 @@ class InhabitantServiceUnitTest {
     }
 
 
+    @Test
+    void givenAge_whenGetAllByThatAgeOrOlder_thenSucceed() {
+        // GIVEN
+        var inhab1 = new Inhabitant();
+        inhab1.setBirthday(LocalDate.of(2002, 3, 1));
+        var inhab2 = new Inhabitant();
+        inhab1.setBirthday(LocalDate.of(2005, 1, 2));
+        inhab2.setBalance(102.0);
+        var inhab3 = new Inhabitant();
+        inhab1.setBirthday(LocalDate.of(2000, 1, 2));
+        inhab3.setBalance(101.0);
+        var age = 20;
+
+        when(inhabitantRepo.findAllByThatAgeOrOlder(age)).thenReturn(List.of(inhab1, inhab3));
+        // WHEN
+        var result = inhabitantService.getAllByThatAgeOrOlder(String.valueOf(age));
+
+        // THEN
+
+        verify(inhabitantRepo).findAllByThatAgeOrOlder(age);
+        assert !result.contains(inhab2.toDTO());
+
+    }
 }

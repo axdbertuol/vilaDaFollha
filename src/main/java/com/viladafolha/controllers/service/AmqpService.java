@@ -1,8 +1,6 @@
 package com.viladafolha.controllers.service;
 
-import com.viladafolha.enums.MessageType;
 import com.viladafolha.model.Message;
-import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.MessageDTO;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
