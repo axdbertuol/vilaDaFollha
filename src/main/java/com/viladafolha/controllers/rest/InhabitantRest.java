@@ -5,6 +5,7 @@ import com.viladafolha.controllers.service.InhabitantService;
 import com.viladafolha.controllers.service.VilaService;
 import com.viladafolha.exceptions.InhabitantNotFoundException;
 
+import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.InhabitantDTO;
 import com.viladafolha.model.transport.MailDTO;
 import com.viladafolha.util.JsonResponse;
@@ -12,6 +13,9 @@ import com.google.gson.JsonObject;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -86,24 +90,24 @@ public class InhabitantRest {
     }
 
     @DeleteMapping(value = "/remove/{id}")
-    public String removeInhabitant(@PathVariable Long id)  {
+    public String removeInhabitant(@PathVariable Long id) {
 
-        JsonObject response = new JsonObject();
         inhabitantService.removeInhabitant(id);
 
+        JsonObject response = new JsonObject();
         response.addProperty("http_status", String.valueOf(HttpStatus.OK));
         response.addProperty("msg", "Inhabitant with id " + id + " deleted from DB.");
 
         return response.toString();
     }
 
-    @PostMapping(path = "/generate-new-password",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public String forgot(@RequestBody MailDTO mail) {
+    @GetMapping(path = "/generate-new-password")
+    public String generateNewPasswordForUser() {
 
-        inhabitantService.sendNewPassword(mail.getTo());
+        inhabitantService.sendNewPassword();
         return "New password was sent to your email";
+
+
     }
 
 }

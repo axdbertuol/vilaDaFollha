@@ -15,6 +15,9 @@ import org.jsoup.nodes.TextNode;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -104,19 +107,22 @@ public class InhabitantService implements UserDetailsService {
     }
 
 
-
-
     public void removeInhabitant(Long id) {
         if (inhabitantRepo.findById(id).isPresent()) {
             inhabitantRepo.deleteById(id);
         }
     }
 
-    public Boolean sendNewPassword(String email) {
-        var inhabitantDTO = getInhabitant(email);
-        if (inhabitantDTO == null) {
-            throw new UsernameNotFoundException(email);
+    public Boolean sendNewPassword() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = null;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+             email = (String) authentication.getPrincipal();
         }
+        assert email != null;
+
+        InhabitantDTO inhabitantDTO = getInhabitant(email);
         String newPass = generatePassword();
         String encodePass = encoder.encode(newPass);
         inhabitantDTO.setPassword(encodePass);
@@ -144,8 +150,6 @@ public class InhabitantService implements UserDetailsService {
     private String generatePassword() {
         return new String(PasswordGenerator.generatePassword(12));
     }
-
-
 
 
     public PasswordEncoder getEncoder() {

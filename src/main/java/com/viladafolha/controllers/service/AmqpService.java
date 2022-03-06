@@ -1,10 +1,15 @@
 package com.viladafolha.controllers.service;
 
+import com.viladafolha.enums.MessageType;
 import com.viladafolha.model.Message;
+import com.viladafolha.model.UserSpringSecurity;
 import com.viladafolha.model.transport.MessageDTO;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -30,8 +35,8 @@ public class AmqpService {
         this.queueSender = queueSender;
         this.vilaService = vilaService;
         this.exchangeName = exchangeName;
-        typesToNameQueueMap.put("PRINT_SYSMSG", queueName1);
-        typesToNameQueueMap.put("GENERATE_PDF", queueName2);
+        typesToNameQueueMap.put("PRINT_SYS_MSG", queueName1);
+        typesToNameQueueMap.put("GENERATE_PDF_REPORT", queueName2);
 
 
     }
@@ -41,12 +46,19 @@ public class AmqpService {
 
         // create model Message
         var messageModel = new Message(messageDTO);
-        // TODO get credentials from system to set sender as the email from the logged in inhabitant
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = null;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+             email = (String) authentication.getPrincipal();
+        }
+        assert email != null;
+        messageModel.setSender(email);
 
         var response = false;
         switch (messageModel.getType()) {
-            case "GENERATE_PDF" -> {
-                var routingKey = typesToNameQueueMap.get("GENERATE_PDF");
+            case "GENERATE_PDF_REPORT" -> {
+                var routingKey = typesToNameQueueMap.get("GENERATE_PDF_REPORT");
                 messageModel.setTarget(routingKey);
                 var financialReport = vilaService.getFinancialReport();
                 messageModel.setMessage(financialReport.toJSON().toString());
@@ -59,8 +71,8 @@ public class AmqpService {
                 }
                 response = true;
             }
-            case "PRINT_SYSMSG" -> {
-                var routingKey = typesToNameQueueMap.get("PRINT_SYSMSG");
+            case "PRINT_SYS_MSG" -> {
+                var routingKey = typesToNameQueueMap.get("PRINT_SYS_MSG");
                 messageModel.setTarget(routingKey);
                 MessageDTO newMessage = new MessageDTO(messageModel);
                 queueSender.convertAndSend(exchangeName, routingKey, newMessage);

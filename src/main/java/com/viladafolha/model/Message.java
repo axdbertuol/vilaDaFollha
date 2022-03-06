@@ -5,13 +5,14 @@ import com.viladafolha.model.transport.MessageDTO;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Message implements Serializable {
 
     private final long serial = 1L;
 
-    private final String[] ACCEPTABLE_MSGS = new String[]{"PRINT", "SYS_MESSAGE"};
+    private final String[] ACCEPTABLE_MSGS = new String[]{"PRINT_SYS_MSG", "GENERATE_PDF_REPORT"};
 
     private String sender;
     private String target;
@@ -49,7 +50,8 @@ public class Message implements Serializable {
     }
 
     public boolean isValid() {
-        return !this.message.matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}");
+        return this.sender.matches("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
+                && Arrays.stream(ACCEPTABLE_MSGS).toList().contains(this.type);
     }
 
     public Integer getRetries() {

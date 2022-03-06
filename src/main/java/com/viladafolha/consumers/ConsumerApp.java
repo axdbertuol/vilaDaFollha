@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lowagie.text.DocumentException;
 import com.viladafolha.controllers.service.EmailService;
+import com.viladafolha.enums.MessageType;
 import com.viladafolha.model.Message;
 import com.viladafolha.model.transport.MailDTO;
 import com.viladafolha.model.transport.MessageDTO;
@@ -50,8 +51,8 @@ public class ConsumerApp {
         this.emailService = emailService;
 
         this.sourceEmail = sourceEmail;
-        typesToNameQueueMap.put("PRINT_SYSMSG", queueName1);
-        typesToNameQueueMap.put("GENERATE_PDF", queueName2);
+        typesToNameQueueMap.put("PRINT_SYS_MSG", queueName1);
+        typesToNameQueueMap.put("GENERATE_PDF_REPORT", queueName2);
 
 
     }
@@ -89,7 +90,7 @@ public class ConsumerApp {
 
 
         switch (type) {
-            case "PRINT_SYSMSG" -> {
+            case "PRINT_SYS_MSG" -> {
                 System.out.println("---------------------------------------------");
                 System.out.println("NEW AMQP MESSAGE FROM: " + messageModel.getSender());
                 System.out.println("---------------------------------------------");
@@ -98,7 +99,7 @@ public class ConsumerApp {
                 System.out.println("---------------------------------------------");
 
             }
-            case "GENERATE_PDF" -> {
+            case "GENERATE_PDF_REPORT" -> {
 
                 try {
                     File inputHTML = new File(HTML_INPUT);
