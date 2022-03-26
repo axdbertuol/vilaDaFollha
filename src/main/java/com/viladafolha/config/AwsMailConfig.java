@@ -1,12 +1,12 @@
 package com.viladafolha.config;
 
-
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import io.awspring.cloud.ses.SimpleEmailServiceJavaMailSender;
+
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +18,8 @@ public class AwsMailConfig {
     private final String accessKey;
 
     public AwsMailConfig(
-            @Value("${aws.accesskey.secret}") String secretKey,
-            @Value("${aws.accesskey}") String accessKey
-    ) {
+            @Value("${aws.accessKeyId}") String secretKey,
+            @Value("${aws.secretKey}") String accessKey) {
         this.secretKey = secretKey;
         this.accessKey = accessKey;
     }
@@ -38,8 +37,4 @@ public class AwsMailConfig {
                 .build();
     }
 
-    @Bean
-    public JavaMailSender javaMailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
-        return new SimpleEmailServiceJavaMailSender(amazonSimpleEmailService);
-    }
 }
